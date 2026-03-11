@@ -6,7 +6,7 @@
 		{{template "repo/sub_menu" .}}
 		{{if .DefaultBranchBranch}}
 			<h4 class="ui top attached header">
-				{{ctx.Locale.Tr "repo.default_branch"}}
+				{{if $.IsJJRepo}}Default Bookmark{{else}}{{ctx.Locale.Tr "repo.default_branch"}}{{end}}
 				{{if and $.Permission.IsAdmin (not $.Repository.IsArchived) (not .IsDeleted)}}
 				<a role="button" class="right" href="{{.RepoLink}}/settings/branches" data-tooltip-content="{{ctx.Locale.Tr "repo.settings.branches.switch_default_branch"}}">
 					{{svg "octicon-arrow-switch"}}
@@ -68,7 +68,7 @@
 
 		<h4 class="ui top attached header tw-flex tw-items-center tw-justify-between">
 			<div class="tw-flex tw-items-center">
-				{{ctx.Locale.Tr "repo.branches"}}
+				{{if $.IsJJRepo}}Bookmarks{{else}}{{ctx.Locale.Tr "repo.branches"}}{{end}}
 			</div>
 		</h4>
 

@@ -35,6 +35,7 @@ import (
 	repo_module "forgejo.org/modules/repository"
 	"forgejo.org/modules/setting"
 	"forgejo.org/modules/util"
+	"forgejo.org/modules/vcsbackend"
 	asymkey_service "forgejo.org/services/asymkey"
 	redirect_service "forgejo.org/services/redirect"
 
@@ -588,6 +589,10 @@ func RepoAssignment(ctx *Context) context.CancelFunc {
 	ctx.Data["Title"] = owner.Name + "/" + repo.Name
 	ctx.Data["Repository"] = repo
 	ctx.Data["RepositoryAPActorID"] = repo.APActorID()
+
+	// Inject VCS-specific context (vocabulary, feature flags) for templates
+	vcsbackend.InjectContextData(ctx.Data, repo)
+
 	ctx.Data["Owner"] = ctx.Repo.Repository.Owner
 	ctx.Data["IsRepositoryOwner"] = ctx.Repo.IsOwner()
 	ctx.Data["IsRepositoryAdmin"] = ctx.Repo.IsAdmin()

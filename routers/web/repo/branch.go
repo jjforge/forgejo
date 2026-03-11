@@ -36,7 +36,11 @@ const (
 
 // Branches render repository branch page
 func Branches(ctx *context.Context) {
-	ctx.Data["Title"] = "Branches"
+	if ctx.Repo.Repository.IsJJ() {
+		ctx.Data["Title"] = "Bookmarks"
+	} else {
+		ctx.Data["Title"] = "Branches"
+	}
 	ctx.Data["IsRepoToolbarBranches"] = true
 	ctx.Data["AllowsPulls"] = ctx.Repo.Repository.AllowsPulls(ctx)
 	ctx.Data["IsWriter"] = ctx.Repo.CanWrite(unit.TypeCode)

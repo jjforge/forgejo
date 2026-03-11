@@ -26,11 +26,11 @@
 	const data = {
 		'textReleaseCompare': {{ctx.Locale.Tr "repo.release.compare"}},
 		'textCreateTag': {{ctx.Locale.Tr "repo.tag.create_tag"}},
-		'textCreateBranch': {{ctx.Locale.Tr "repo.branch.create_branch"}},
-		'textCreateBranchFrom': {{ctx.Locale.Tr "repo.branch.create_from"}},
-		'textBranches': {{ctx.Locale.Tr "repo.branches"}},
+		'textCreateBranch': {{if $.root.IsJJRepo}}'Create Bookmark'{{else}}{{ctx.Locale.Tr "repo.branch.create_branch"}}{{end}},
+		'textCreateBranchFrom': {{if $.root.IsJJRepo}}'Create bookmark from'{{else}}{{ctx.Locale.Tr "repo.branch.create_from"}}{{end}},
+		'textBranches': {{if $.root.IsJJRepo}}'Bookmarks'{{else}}{{ctx.Locale.Tr "repo.branches"}}{{end}},
 		'textTags': {{ctx.Locale.Tr "repo.tags"}},
-		'textDefaultBranchLabel': {{ctx.Locale.Tr "repo.default_branch_label"}},
+		'textDefaultBranchLabel': {{if $.root.IsJJRepo}}'default'{{else}}{{ctx.Locale.Tr "repo.default_branch_label"}}{{end}},
 
 		'mode': '{{if or .root.IsViewTag .isTag}}tags{{else}}branches{{end}}',
 		'showBranchesInDropdown': {{$showBranchesInDropdown}},

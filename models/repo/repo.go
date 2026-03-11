@@ -115,6 +115,16 @@ func ToTrustModel(model string) TrustModelType {
 	return DefaultTrustModel
 }
 
+// VCSType represents the version control system type of a repository.
+type VCSType string
+
+const (
+	// VCSTypeGit represents a standard git repository.
+	VCSTypeGit VCSType = "git"
+	// VCSTypeJJ represents a jujutsu (jj) repository managed by the sidecar.
+	VCSTypeJJ VCSType = "jj"
+)
+
 // RepositoryStatus defines the status of repository
 type RepositoryStatus int
 
@@ -180,6 +190,10 @@ type Repository struct {
 
 	TrustModel TrustModelType
 
+	// VCSBackendType stores the version control system type: "git" (default) or "jj".
+	// Determines which backend (GitBackend or JjBackend) is used for content operations.
+	VCSBackendType VCSType `xorm:"VARCHAR(10) NOT NULL DEFAULT 'git'"`
+
 	// Avatar: ID(10-20)-md5(32) - must fit into 64 symbols
 	Avatar string `xorm:"VARCHAR(64)"`
 
@@ -197,6 +211,11 @@ func (repo *Repository) BeforeInsert() {
 
 func init() {
 	db.RegisterModel(new(Repository))
+}
+
+// IsJJ returns true if this repository uses the jujutsu (jj) VCS backend.
+func (repo *Repository) IsJJ() bool {
+	return repo.VCSBackendType == VCSTypeJJ
 }
 
 func (repo *Repository) GetName() string {
