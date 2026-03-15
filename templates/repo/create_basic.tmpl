@@ -55,3 +55,15 @@
 	{{ctx.Locale.Tr "repo.repo_desc"}}
 	<textarea rows="2" name="description" placeholder="{{ctx.Locale.Tr "repo.repo_desc_helper"}}" maxlength="2048">{{.description}}</textarea>
 </label>
+<label>
+	VCS Type
+	<div class="ui selection dropdown">
+		<input type="hidden" name="vcs_type" value="{{if .vcs_type}}{{.vcs_type}}{{else}}git{{end}}">
+		<div class="default text">{{if .vcs_type}}{{.vcs_type}}{{else}}git{{end}}</div>
+		<div class="menu">
+			<div class="item" data-value="git">git</div>
+			<div class="item" data-value="jj">jj (Jujutsu)</div>
+		</div>
+	</div>
+	<span class="help">Choose the version control backend. Git repos use standard git. Jujutsu repos use the jj sidecar for sync and browsing.</span>
+</label>

@@ -26,6 +26,7 @@ import (
 	"forgejo.org/modules/markup"
 	"forgejo.org/modules/setting"
 	"forgejo.org/modules/util"
+	"forgejo.org/modules/vcsbackend"
 	"forgejo.org/modules/web"
 	"forgejo.org/services/context"
 	"forgejo.org/services/forms"
@@ -56,6 +57,13 @@ func RefCommits(ctx *context.Context) {
 // Commits render branch's commits
 func Commits(ctx *context.Context) {
 	ctx.Data["PageIsCommits"] = true
+
+	// Dispatch jj repos through VCSBackend
+	if ctx.Repo.Repository.IsJJ() {
+		CommitsJJ(ctx)
+		return
+	}
+
 	if ctx.Repo.Commit == nil {
 		ctx.NotFound("Commit not found", nil)
 		return
@@ -102,6 +110,89 @@ func Commits(ctx *context.Context) {
 	ctx.Data["CommitCount"] = commitsCount
 
 	pager := context.NewPagination(int(commitsCount), pageSize, page, 5)
+	pager.SetDefaultParams(ctx)
+	ctx.Data["Page"] = pager
+
+	ctx.HTML(http.StatusOK, tplCommits)
+}
+
+// CommitsJJ renders the commits page for jj repositories using VCSBackend.
+func CommitsJJ(ctx *context.Context) {
+	ctx.Data["PageIsViewCode"] = true
+
+	backend := vcsbackend.GetBackend(ctx.Repo.Repository)
+
+	refName := ctx.Repo.BranchName
+	if refName == "" {
+		defaultRef, err := backend.GetDefaultRef()
+		if err != nil {
+			// Sidecar 404 means no data pushed yet -- show empty repo page
+			if strings.Contains(err.Error(), "status 404") {
+				ctx.HTML(http.StatusOK, tplRepoEMPTY)
+				return
+			}
+			ctx.ServerError("VCSBackend.GetDefaultRef", err)
+			return
+		}
+		refName = defaultRef
+	}
+
+	page := ctx.FormInt("page")
+	if page <= 1 {
+		page = 1
+	}
+	pageSize := ctx.FormInt("limit")
+	if pageSize <= 0 {
+		pageSize = setting.Git.CommitsRangeSize
+	}
+
+	commitsResp, err := backend.GetCommits(refName, "", page, pageSize)
+	if err != nil {
+		// Sidecar 404 means no data pushed yet -- show empty repo page
+		if strings.Contains(err.Error(), "status 404") {
+			ctx.HTML(http.StatusOK, tplRepoEMPTY)
+			return
+		}
+		ctx.ServerError("VCSBackend.GetCommits", err)
+		return
+	}
+
+	// Convert to template format
+	type commitDisplay struct {
+		CommitID      string
+		ShortID       string
+		ChangeID      string
+		ShortChangeID string
+		Subject       string
+		AuthorName    string
+		AuthorEmail   string
+		HasConflict   bool
+		Parents       []string
+		Bookmarks     []string
+	}
+
+	commits := make([]commitDisplay, 0, len(commitsResp.Commits))
+	for _, c := range commitsResp.Commits {
+		commits = append(commits, commitDisplay{
+			CommitID:      c.CommitID,
+			ShortID:       c.ShortID,
+			ChangeID:      c.ChangeID,
+			ShortChangeID: c.ShortChangeID,
+			Subject:       c.Subject,
+			AuthorName:    c.Author.Name,
+			AuthorEmail:   c.Author.Email,
+			HasConflict:   c.HasConflict,
+			Parents:       c.Parents,
+			Bookmarks:     c.Bookmarks,
+		})
+	}
+
+	ctx.Data["Commits"] = commits
+	ctx.Data["CommitCount"] = commitsResp.Total
+	ctx.Data["Username"] = ctx.Repo.Owner.Name
+	ctx.Data["Reponame"] = ctx.Repo.Repository.Name
+
+	pager := context.NewPagination(commitsResp.Total, pageSize, page, 5)
 	pager.SetDefaultParams(ctx)
 	ctx.Data["Page"] = pager
 

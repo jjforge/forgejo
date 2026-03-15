@@ -262,6 +262,11 @@ func CreateUserRepo(ctx *context.APIContext, owner *user_model.User, opt api.Cre
 		return
 	}
 
+	vcsType := repo_model.VCSType(opt.VCSType)
+	if vcsType == "" {
+		vcsType = repo_model.VCSTypeGit
+	}
+
 	repo, err := repo_service.CreateRepository(ctx, ctx.Doer, owner, repo_service.CreateRepoOptions{
 		Name:             opt.Name,
 		Description:      opt.Description,
@@ -275,6 +280,7 @@ func CreateUserRepo(ctx *context.APIContext, owner *user_model.User, opt api.Cre
 		TrustModel:       repo_model.ToTrustModel(opt.TrustModel),
 		IsTemplate:       opt.Template,
 		ObjectFormatName: opt.ObjectFormatName,
+		VCSType:          vcsType,
 	})
 	if err != nil {
 		if repo_model.IsErrRepoAlreadyExist(err) {

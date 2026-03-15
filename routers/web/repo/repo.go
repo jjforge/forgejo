@@ -288,6 +288,11 @@ func CreatePost(ctx *context.Context) {
 			return
 		}
 	} else {
+		vcsType := repo_model.VCSType(form.VCSType)
+		if vcsType == "" {
+			vcsType = repo_model.VCSTypeGit
+		}
+
 		repo, err = repo_service.CreateRepository(ctx, ctx.Doer, ctxUser, repo_service.CreateRepoOptions{
 			Name:             form.RepoName,
 			Description:      form.Description,
@@ -301,6 +306,7 @@ func CreatePost(ctx *context.Context) {
 			IsTemplate:       form.Template,
 			TrustModel:       repo_model.DefaultTrustModel,
 			ObjectFormatName: form.ObjectFormatName,
+			VCSType:          vcsType,
 		})
 		if err == nil {
 			log.Trace("Repository created [%d]: %s/%s", repo.ID, ctxUser.Name, repo.Name)

@@ -160,6 +160,9 @@ type CreateRepoOption struct {
 	// ObjectFormatName of the underlying git repository
 	// enum: ["sha1", "sha256"]
 	ObjectFormatName string `json:"object_format_name" binding:"MaxSize(6)"`
+	// VCSType of the repository
+	// enum: ["git", "jj"]
+	VCSType string `json:"vcs_type" binding:"MaxSize(3)"`
 }
 
 // EditRepoOption options when editing a repository's properties

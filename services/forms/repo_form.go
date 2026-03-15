@@ -49,6 +49,7 @@ type CreateRepoForm struct {
 
 	ForkSingleBranch string
 	ObjectFormatName string
+	VCSType          string
 }
 
 // Validate validates the fields

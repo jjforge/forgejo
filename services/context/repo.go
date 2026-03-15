@@ -683,6 +683,14 @@ func RepoAssignment(ctx *Context) context.CancelFunc {
 		return nil
 	}
 
+	// jj repos don't have a local git repository on disk -- skip git operations.
+	// Content is served via the sidecar Browse API through VCSBackend.
+	if repo.IsJJ() {
+		ctx.Data["BranchName"] = ctx.Repo.Repository.DefaultBranch
+		ctx.Data["IsViewBranch"] = true
+		return nil
+	}
+
 	gitRepo, err := gitrepo.OpenRepository(ctx, repo)
 	if err != nil {
 		if strings.Contains(err.Error(), "repository does not exist") || strings.Contains(err.Error(), "no such file or directory") {

@@ -50,6 +50,7 @@ import (
 	"forgejo.org/modules/svg"
 	"forgejo.org/modules/typesniffer"
 	"forgejo.org/modules/util"
+	"forgejo.org/modules/vcsbackend"
 	"forgejo.org/routers/web/feed"
 	"forgejo.org/services/context"
 	issue_service "forgejo.org/services/issue"
@@ -977,10 +978,142 @@ func prepareOpenWithEditorApps(ctx *context.Context) {
 	ctx.Data["OpenWithEditorApps"] = tmplApps
 }
 
+// renderHomeCodeJJ renders the repository home page for jj repositories
+// using the VCSBackend interface instead of direct git operations.
+func renderHomeCodeJJ(ctx *context.Context) {
+	backend := vcsbackend.GetBackend(ctx.Repo.Repository)
+
+	// Get default ref if no branch specified
+	refName := ctx.Repo.BranchName
+	if refName == "" {
+		defaultRef, err := backend.GetDefaultRef()
+		if err != nil {
+			// Sidecar 404 means no data pushed yet -- show empty repo page
+			if strings.Contains(err.Error(), "status 404") {
+				ctx.HTML(http.StatusOK, tplRepoEMPTY)
+				return
+			}
+			ctx.ServerError("VCSBackend.GetDefaultRef", err)
+			return
+		}
+		refName = defaultRef
+	}
+	ctx.Data["BranchName"] = refName
+
+	treePath := ctx.Repo.TreePath
+
+	// Try to list tree at the current path
+	treeResp, err := backend.ListTree(refName, treePath)
+	if err != nil {
+		// Sidecar 404 means no data pushed yet -- show empty repo page
+		if strings.Contains(err.Error(), "status 404") {
+			ctx.HTML(http.StatusOK, tplRepoEMPTY)
+			return
+		}
+		// Path might be a file, not a directory
+		if treePath != "" {
+			blobResp, blobErr := backend.GetBlob(refName, treePath)
+			if blobErr == nil {
+				renderFileJJ(ctx, blobResp, treePath)
+				return
+			}
+		}
+		ctx.ServerError("VCSBackend.ListTree", err)
+		return
+	}
+
+	// Render directory listing
+	ctx.Data["IsViewDirectory"] = true
+	title := ctx.Repo.Repository.Owner.Name + "/" + ctx.Repo.Repository.Name
+	if len(ctx.Repo.Repository.Description) > 0 {
+		title += ": " + ctx.Repo.Repository.Description
+	}
+	ctx.Data["Title"] = title
+
+	// Convert tree entries to template format
+	files := make([]any, 0, len(treeResp.Entries))
+	for i := range treeResp.Entries {
+		e := &treeResp.Entries[i]
+		files = append(files, map[string]any{
+			"Name":      e.Name,
+			"EntryMode": entryModeFromType(e.Type),
+			"IsDir":     e.Type == "directory",
+			"IsLink":    e.Type == "symlink",
+		})
+	}
+	ctx.Data["Files"] = files
+	ctx.Data["HasFilesWithoutLatestCommit"] = true
+
+	branchLink := ctx.Repo.RepoLink + "/src/branch/" + refName
+	treeLink := branchLink
+	if len(treePath) > 0 {
+		treeLink += "/" + treePath
+	}
+	ctx.Data["TreeLink"] = treeLink
+	ctx.Data["SSHDomain"] = setting.SSH.Domain
+
+	renderRepoTopics(ctx)
+	if ctx.Written() {
+		return
+	}
+
+	renderLanguageStats(ctx)
+	if ctx.Written() {
+		return
+	}
+
+	ctx.HTML(http.StatusOK, tplRepoHome)
+}
+
+// renderFileJJ renders a single file view for jj repositories.
+func renderFileJJ(ctx *context.Context, blob *vcsbackend.BlobResponse, filePath string) {
+	ctx.Data["IsViewFile"] = true
+	ctx.Data["HideRepoInfo"] = true
+	ctx.Data["Title"] = ctx.Tr("repo.file.title", ctx.Repo.Repository.Name+"/"+filePath, ctx.Repo.BranchName)
+	ctx.Data["FileName"] = path.Base(filePath)
+	ctx.Data["FileSize"] = blob.Size
+
+	if blob.IsBinary {
+		ctx.Data["IsFileTooLarge"] = false
+		ctx.Data["IsTextFile"] = false
+	} else if blob.IsLarge {
+		ctx.Data["IsFileTooLarge"] = true
+		ctx.Data["IsTextFile"] = true
+	} else {
+		ctx.Data["IsTextFile"] = true
+		ctx.Data["FileContent"] = blob.Content
+		ctx.Data["Language"] = blob.Language
+	}
+
+	if blob.HasConflict {
+		ctx.Data["HasConflict"] = true
+	}
+
+	ctx.HTML(http.StatusOK, tplRepoHome)
+}
+
+// entryModeFromType converts a vcsbackend type string to a git-compatible entry mode.
+func entryModeFromType(entryType string) int64 {
+	switch entryType {
+	case "directory":
+		return 0o40000
+	case "symlink":
+		return 0o120000
+	default:
+		return 0o100644
+	}
+}
+
 func renderHomeCode(ctx *context.Context) {
 	ctx.Data["PageIsViewCode"] = true
 	ctx.Data["RepositoryUploadEnabled"] = setting.Repository.Upload.Enabled
 	prepareOpenWithEditorApps(ctx)
+
+	// Dispatch jj repos through VCSBackend
+	if ctx.Repo.Repository.IsJJ() {
+		renderHomeCodeJJ(ctx)
+		return
+	}
 
 	if ctx.Repo.Commit == nil || ctx.Repo.Repository.IsEmpty || ctx.Repo.Repository.IsBroken() {
 		showEmpty := true

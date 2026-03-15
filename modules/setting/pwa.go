@@ -48,11 +48,6 @@ func GetManifestJSON() ([]byte, error) {
 				Type:  "image/png",
 				Sizes: "512x512",
 			},
-			{
-				Src:   AbsoluteAssetURL + "/assets/img/logo.svg",
-				Type:  "image/svg+xml",
-				Sizes: "512x512",
-			},
 		},
 	}
 
