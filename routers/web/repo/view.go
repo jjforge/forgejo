@@ -1064,6 +1064,8 @@ func renderHomeCodeJJ(ctx *context.Context) {
 		ctx.Data["TreeNames"] = strings.Split(treePath, "/")
 	}
 	ctx.Data["BranchNameSubURL"] = "src/branch/" + refName
+	ctx.Data["CommitID"] = ""
+	ctx.Data["IsTextFile"] = false
 
 	renderRepoTopics(ctx)
 	if ctx.Written() {
