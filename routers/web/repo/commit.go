@@ -196,6 +196,8 @@ func CommitsJJ(ctx *context.Context) {
 	ctx.Data["BranchName"] = refName
 	ctx.Data["BranchNameSubURL"] = "src/branch/" + refName
 	ctx.Data["PageIsCommits"] = true
+	ctx.Data["CommitID"] = ""
+	ctx.Data["RefName"] = refName
 
 	pager := context.NewPagination(commitsResp.Total, pageSize, page, 5)
 	pager.SetDefaultParams(ctx)
