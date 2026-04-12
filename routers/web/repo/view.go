@@ -985,11 +985,9 @@ func renderHomeCodeJJ(ctx *context.Context) {
 
 	// Get default ref if no branch specified
 	refName := ctx.Repo.BranchName
-	log.Info("renderHomeCodeJJ: BranchName=%q", refName)
 	if refName == "" {
 		defaultRef, err := backend.GetDefaultRef()
 		if err != nil {
-			log.Error("renderHomeCodeJJ: GetDefaultRef failed: %v", err)
 			// Sidecar 404 means no data pushed yet -- show empty repo page
 			if strings.Contains(err.Error(), "status 404") {
 				ctx.HTML(http.StatusOK, tplRepoEMPTY)
@@ -999,17 +997,14 @@ func renderHomeCodeJJ(ctx *context.Context) {
 			return
 		}
 		refName = defaultRef
-		log.Info("renderHomeCodeJJ: defaultRef=%q", refName)
 	}
 	ctx.Data["BranchName"] = refName
 
 	treePath := ctx.Repo.TreePath
-	log.Info("renderHomeCodeJJ: calling ListTree ref=%q path=%q", refName, treePath)
 
 	// Try to list tree at the current path
 	treeResp, err := backend.ListTree(refName, treePath)
 	if err != nil {
-		log.Error("renderHomeCodeJJ: ListTree failed: %v", err)
 		// Sidecar 404 means no data pushed yet -- show empty repo page
 		if strings.Contains(err.Error(), "status 404") {
 			ctx.HTML(http.StatusOK, tplRepoEMPTY)
@@ -1146,11 +1141,9 @@ func renderHomeCode(ctx *context.Context) {
 	prepareOpenWithEditorApps(ctx)
 
 	// Dispatch jj repos through VCSBackend
-	log.Info("renderHomeCode: repo=%s IsJJ=%v VCSBackendType=%s IsEmpty=%v",
 		ctx.Repo.Repository.FullName(), ctx.Repo.Repository.IsJJ(),
 		ctx.Repo.Repository.VCSBackendType, ctx.Repo.Repository.IsEmpty)
 	if ctx.Repo.Repository.IsJJ() {
-		log.Info("renderHomeCode: dispatching to renderHomeCodeJJ")
 		renderHomeCodeJJ(ctx)
 		return
 	}
