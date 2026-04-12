@@ -1061,11 +1061,22 @@ func renderHomeCodeJJ(ctx *context.Context) {
 	ctx.Data["TreeLink"] = treeLink
 	ctx.Data["SSHDomain"] = setting.SSH.Domain
 
-	// Breadcrumb: TreeNames is the path segments for navigation
+	// Breadcrumb: TreeNames = segments, Paths = cumulative paths for links
 	if treePath == "" {
 		ctx.Data["TreeNames"] = []string{}
+		ctx.Data["Paths"] = []string{}
 	} else {
-		ctx.Data["TreeNames"] = strings.Split(treePath, "/")
+		dirParts := strings.Split(treePath, "/")
+		ctx.Data["TreeNames"] = dirParts
+		dirPaths := make([]string, len(dirParts))
+		for i := range dirParts {
+			dirPaths[i] = strings.Join(dirParts[:i+1], "/")
+		}
+		ctx.Data["Paths"] = dirPaths
+		ctx.Data["HasParentPath"] = true
+		if len(dirParts) > 1 {
+			ctx.Data["ParentPath"] = strings.Join(dirParts[:len(dirParts)-1], "/")
+		}
 	}
 	ctx.Data["BranchNameSubURL"] = "src/branch/" + refName
 	ctx.Data["CommitID"] = ""
@@ -1141,8 +1152,18 @@ func renderFileJJ(ctx *context.Context, blob *vcsbackend.BlobResponse, filePath 
 	ctx.Data["LatestCommitStatuses"] = nil
 	ctx.Data["LatestCommitUser"] = nil
 
-	// Breadcrumb
-	ctx.Data["TreeNames"] = strings.Split(filePath, "/")
+	// Breadcrumb: TreeNames = segments, Paths = cumulative paths
+	parts := strings.Split(filePath, "/")
+	ctx.Data["TreeNames"] = parts
+	paths := make([]string, len(parts))
+	for i := range parts {
+		paths[i] = strings.Join(parts[:i+1], "/")
+	}
+	ctx.Data["Paths"] = paths
+	ctx.Data["HasParentPath"] = len(parts) > 1
+	if len(parts) > 1 {
+		ctx.Data["ParentPath"] = strings.Join(parts[:len(parts)-1], "/")
+	}
 
 	if blob.IsBinary {
 		ctx.Data["IsFileTooLarge"] = false
