@@ -1078,6 +1078,15 @@ func renderHomeCodeJJ(ctx *context.Context) {
 	ctx.Data["TagName"] = ""
 	ctx.Data["CanCompareOrPull"] = false
 	ctx.Data["DisableDownloadSourceArchives"] = true
+	ctx.Data["CodeSearchOptions"] = []string{}
+	ctx.Data["CodeIndexerUnavailable"] = true
+	ctx.Data["CodeIndexerDisabled"] = true
+	ctx.Data["HideRepoInfo"] = false
+	ctx.Data["LanguageStats"] = map[string]float32{}
+	ctx.Data["LatestCommit"] = nil
+	ctx.Data["LatestCommitStatus"] = nil
+	ctx.Data["LatestCommitStatuses"] = nil
+	ctx.Data["LatestCommitUser"] = nil
 
 	renderRepoTopics(ctx)
 	if ctx.Written() {
