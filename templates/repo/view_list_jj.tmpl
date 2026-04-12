@@ -30,7 +30,12 @@
 							{{svg "octicon-file-symlink-file" 16 "tw-mr-2"}}{{$item.Name}}
 						{{else}}
 							<a class="muted" href="{{$.TreeLink}}/{{PathEscapeSegments $item.Name}}" title="{{$item.Name}}">
-								{{svg "octicon-file" 16 "tw-mr-2"}}{{$item.Name}}
+								{{if $item.HasConflict}}
+									{{svg "octicon-alert" 16 "tw-mr-2 tw-text-yellow"}}
+								{{else}}
+									{{svg "octicon-file" 16 "tw-mr-2"}}
+								{{end}}
+								{{$item.Name}}
 							</a>
 						{{end}}
 					</span>

@@ -19,6 +19,20 @@
 							{{ctx.Locale.Tr "repo.broken_message"}}
 						</div>
 				{{else if .CanWriteCode}}
+					{{if .IsJJRepo}}
+					<h4 class="ui top attached header">
+						Push your first jj repository
+					</h4>
+					<div class="ui attached segment empty-repo-guide">
+						<div class="item">
+							<h3>Quick start</h3>
+							<div class="markup">
+								<pre><code>jj forge auth login --host {{AppUrl}}
+jj forge push --url {{AppUrl}}repos/{{.Repository.OwnerName}}/{{.Repository.Name}}</code></pre>
+							</div>
+						</div>
+					</div>
+					{{else}}
 					<h4 class="ui top attached header">
 						{{ctx.Locale.Tr "repo.quick_guide"}}
 					</h4>
@@ -68,6 +82,7 @@ git push -u origin {{.Repository.DefaultBranch}}</code></pre>
 								</div>
 							</div>
 						{{end}}
+					{{end}}
 					{{else}}
 						<div class="ui segment center">
 							{{ctx.Locale.Tr "repo.empty_message"}}

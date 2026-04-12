@@ -993,6 +993,15 @@ func renderHomeCodeJJ(ctx *context.Context) {
 				ctx.HTML(http.StatusOK, tplRepoEMPTY)
 				return
 			}
+			// Sidecar connection error -- show friendly unavailable page
+			errStr := err.Error()
+			if strings.Contains(errStr, "connection refused") ||
+				strings.Contains(errStr, "dial tcp") ||
+				strings.Contains(errStr, "context deadline exceeded") {
+				ctx.Data["Title"] = ctx.Repo.Repository.FullName()
+				ctx.HTML(http.StatusOK, "repo/jj_unavailable")
+				return
+			}
 			ctx.ServerError("VCSBackend.GetDefaultRef", err)
 			return
 		}
@@ -1044,10 +1053,11 @@ func renderHomeCodeJJ(ctx *context.Context) {
 	for i := range treeResp.Entries {
 		e := &treeResp.Entries[i]
 		files = append(files, map[string]any{
-			"Name":      e.Name,
-			"EntryMode": entryModeFromType(e.Type),
-			"IsDir":     e.Type == "directory",
-			"IsLink":    e.Type == "symlink",
+			"Name":        e.Name,
+			"EntryMode":   entryModeFromType(e.Type),
+			"IsDir":       e.Type == "directory",
+			"IsLink":      e.Type == "symlink",
+			"HasConflict": e.HasConflict,
 		})
 	}
 	ctx.Data["Files"] = files

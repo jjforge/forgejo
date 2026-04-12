@@ -1,0 +1,17 @@
+{{template "base/head" .}}
+<div role="main" aria-label="{{.Title}}" class="page-content repository">
+	{{template "repo/header" .}}
+	<div class="ui container">
+		<div class="ui placeholder segment">
+			<div class="ui icon header">
+				{{svg "octicon-alert" 48}}
+				<div class="content">
+					Repository data is temporarily unavailable
+				</div>
+			</div>
+			<p class="tw-text-center">The repository service is not responding. Please try again shortly.</p>
+			<p class="tw-text-center">Git repositories are not affected.</p>
+		</div>
+	</div>
+</div>
+{{template "base/footer" .}}

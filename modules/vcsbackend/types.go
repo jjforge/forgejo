@@ -12,6 +12,7 @@ type TreeEntry struct {
 	Type          string `json:"type"` // "file", "directory", "symlink"
 	Size          int64  `json:"size,omitempty"`
 	IsExecutable  bool   `json:"is_executable,omitempty"`
+	HasConflict   bool   `json:"has_conflict,omitempty"` // jj only
 	CommitID      string `json:"commit_id,omitempty"`
 	CommitMessage string `json:"commit_message,omitempty"`
 }
