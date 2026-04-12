@@ -1078,7 +1078,7 @@ func renderHomeCodeJJ(ctx *context.Context) {
 	ctx.Data["TagName"] = ""
 	ctx.Data["CanCompareOrPull"] = false
 	ctx.Data["DisableDownloadSourceArchives"] = true
-	ctx.Data["CodeSearchOptions"] = []string{}
+	ctx.Data["CodeSearchOptions"] = []string{""}
 	ctx.Data["CodeIndexerUnavailable"] = true
 	ctx.Data["CodeIndexerDisabled"] = true
 	ctx.Data["HideRepoInfo"] = false
