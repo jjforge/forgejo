@@ -1141,8 +1141,6 @@ func renderHomeCode(ctx *context.Context) {
 	prepareOpenWithEditorApps(ctx)
 
 	// Dispatch jj repos through VCSBackend
-		ctx.Repo.Repository.FullName(), ctx.Repo.Repository.IsJJ(),
-		ctx.Repo.Repository.VCSBackendType, ctx.Repo.Repository.IsEmpty)
 	if ctx.Repo.Repository.IsJJ() {
 		renderHomeCodeJJ(ctx)
 		return
