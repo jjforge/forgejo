@@ -1,16 +1,26 @@
 {{template "base/head" .}}
-<div role="main" aria-label="{{if .IsSigned}}{{ctx.Locale.Tr "dashboard"}}{{else}}{{ctx.Locale.Tr "home"}}{{end}}" class="page-content home">
+<div role="main" aria-label="{{if .IsSigned}}{{ctx.Locale.Tr "dashboard"}}{{else}}jjforge{{end}}" class="page-content home">
 	<div class="tw-mb-8 tw-px-8">
 		<div class="center">
-			<img class="logo" width="220" height="220" src="{{AssetUrlPrefix}}/img/logo.png" alt="{{ctx.Locale.Tr "logo"}}">
+			<img class="logo" width="120" height="120" src="{{AssetUrlPrefix}}/img/logo.png" alt="jjforge">
 			<div class="hero">
 				<h1 class="ui icon header title">
-					{{AppDisplayName}}
+					The developer platform that fixes version control
 				</h1>
-				<h2>{{ctx.Locale.Tr "startpage.app_desc"}}</h2>
+				<h2 class="tw-text-base tw-font-normal tw-max-w-2xl tw-mx-auto tw-mt-4" style="max-width: 640px; font-weight: normal; font-size: 1.1rem; line-height: 1.6;">
+					jjforge is built around the developer's actual job: building software. Your environment is ready when you are. Your version control works the way you think. Your roadmap scaffolds around how good teams actually decide what to build. Everything else gets out of the way.
+				</h2>
+				<div class="tw-mt-6">
+					{{if not .IsSigned}}
+						<a class="ui primary large button" href="{{AppSubUrl}}/user/sign_up">Join the Beta</a>
+						<a class="ui large button" href="{{AppSubUrl}}/explore/repos">Explore</a>
+					{{else}}
+						<a class="ui primary large button" href="{{AppSubUrl}}/">Dashboard</a>
+					{{end}}
+				</div>
 			</div>
 		</div>
 	</div>
-	{{template "home_forgejo" .}}
+	{{template "home_jjforge" .}}
 </div>
 {{template "base/footer" .}}
