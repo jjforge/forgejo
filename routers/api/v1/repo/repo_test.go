@@ -98,3 +98,47 @@ func TestRepoConvertToNormalRepo(t *testing.T) {
 	assert.Equal(t, http.StatusOK, ctx.Resp.Status())
 	assert.False(t, ctx.Repo.Repository.IsMirror)
 }
+
+func TestCreateUserRepoVCSType(t *testing.T) {
+	unittest.PrepareTestEnv(t)
+
+	t.Run("git type is rejected", func(t *testing.T) {
+		ctx, _ := contexttest.MockAPIContext(t, "user2/repo1")
+		contexttest.LoadUser(t, ctx, 2)
+
+		opt := api.CreateRepoOption{
+			Name:    "test-git-rejected",
+			VCSType: "git",
+		}
+		web.SetForm(ctx, &opt)
+		CreateUserRepo(ctx, ctx.Doer, opt)
+		assert.Equal(t, http.StatusUnprocessableEntity, ctx.Resp.WrittenStatus())
+	})
+
+	t.Run("jj type is accepted", func(t *testing.T) {
+		ctx, _ := contexttest.MockAPIContext(t, "user2/repo1")
+		contexttest.LoadUser(t, ctx, 2)
+
+		opt := api.CreateRepoOption{
+			Name:     "test-jj-accepted",
+			VCSType:  "jj",
+			AutoInit: true,
+		}
+		web.SetForm(ctx, &opt)
+		CreateUserRepo(ctx, ctx.Doer, opt)
+		assert.NotEqual(t, http.StatusUnprocessableEntity, ctx.Resp.WrittenStatus())
+	})
+
+	t.Run("empty type defaults to jj", func(t *testing.T) {
+		ctx, _ := contexttest.MockAPIContext(t, "user2/repo1")
+		contexttest.LoadUser(t, ctx, 2)
+
+		opt := api.CreateRepoOption{
+			Name:     "test-default-jj",
+			AutoInit: true,
+		}
+		web.SetForm(ctx, &opt)
+		CreateUserRepo(ctx, ctx.Doer, opt)
+		assert.NotEqual(t, http.StatusUnprocessableEntity, ctx.Resp.WrittenStatus())
+	})
+}

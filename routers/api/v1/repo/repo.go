@@ -262,10 +262,11 @@ func CreateUserRepo(ctx *context.APIContext, owner *user_model.User, opt api.Cre
 		return
 	}
 
-	vcsType := repo_model.VCSType(opt.VCSType)
-	if vcsType == "" {
-		vcsType = repo_model.VCSTypeGit
+	if opt.VCSType == "git" {
+		ctx.Error(http.StatusUnprocessableEntity, "VCSType", fmt.Errorf("git repositories are not supported — jjforge hosts jj repos only"))
+		return
 	}
+	vcsType := repo_model.VCSTypeJJ
 
 	repo, err := repo_service.CreateRepository(ctx, ctx.Doer, owner, repo_service.CreateRepoOptions{
 		Name:             opt.Name,
