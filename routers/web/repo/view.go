@@ -1144,22 +1144,20 @@ func renderFileJJ(ctx *context.Context, blob *vcsbackend.BlobResponse, filePath 
 	// Breadcrumb
 	ctx.Data["TreeNames"] = strings.Split(filePath, "/")
 
-	if blob.IsBinary != nil && *blob.IsBinary {
+	if blob.IsBinary {
 		ctx.Data["IsFileTooLarge"] = false
 		ctx.Data["IsTextFile"] = false
-	} else if blob.IsLarge != nil && *blob.IsLarge {
+	} else if blob.IsLarge {
 		ctx.Data["IsFileTooLarge"] = true
 		ctx.Data["IsTextFile"] = true
 	} else {
 		ctx.Data["IsTextFile"] = true
 		ctx.Data["IsPlainText"] = true
-		if blob.Content != nil {
-			ctx.Data["FileContent"] = *blob.Content
-		}
+		ctx.Data["FileContent"] = blob.Content
 		ctx.Data["Language"] = blob.Language
 	}
 
-	if blob.HasConflict != nil && *blob.HasConflict {
+	if blob.HasConflict {
 		ctx.Data["HasConflict"] = true
 	}
 
