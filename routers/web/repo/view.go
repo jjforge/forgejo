@@ -1107,26 +1107,65 @@ func renderHomeCodeJJ(ctx *context.Context) {
 
 // renderFileJJ renders a single file view for jj repositories.
 func renderFileJJ(ctx *context.Context, blob *vcsbackend.BlobResponse, filePath string) {
+	refName := ctx.Repo.BranchName
+	branchLink := ctx.Repo.RepoLink + "/src/branch/" + refName
+
 	ctx.Data["IsViewFile"] = true
+	ctx.Data["IsViewDirectory"] = false
 	ctx.Data["HideRepoInfo"] = true
-	ctx.Data["Title"] = ctx.Tr("repo.file.title", ctx.Repo.Repository.Name+"/"+filePath, ctx.Repo.BranchName)
+	ctx.Data["PageIsViewCode"] = true
+	ctx.Data["Title"] = ctx.Repo.Repository.Name + "/" + filePath
 	ctx.Data["FileName"] = path.Base(filePath)
 	ctx.Data["FileSize"] = blob.Size
+	ctx.Data["TreePath"] = filePath
+	ctx.Data["TreeLink"] = branchLink
+	ctx.Data["BranchLink"] = branchLink
+	ctx.Data["BranchName"] = refName
+	ctx.Data["BranchNameSubURL"] = "src/branch/" + refName
+	ctx.Data["RefName"] = refName
+	ctx.Data["CommitID"] = ""
+	ctx.Data["IsViewBranch"] = true
+	ctx.Data["IsBlame"] = false
+	ctx.Data["IsViewTag"] = false
+	ctx.Data["TagName"] = ""
+	ctx.Data["CanEnableEditor"] = false
+	ctx.Data["CanWriteCode"] = false
+	ctx.Data["CanCompareOrPull"] = false
+	ctx.Data["DisableDownloadSourceArchives"] = true
+	ctx.Data["CodeSearchOptions"] = []string{""}
+	ctx.Data["CodeIndexerUnavailable"] = true
+	ctx.Data["CodeIndexerDisabled"] = true
+	ctx.Data["LanguageStats"] = map[string]float32{}
+	ctx.Data["LatestCommit"] = nil
+	ctx.Data["LatestCommitStatus"] = nil
+	ctx.Data["LatestCommitStatuses"] = nil
+	ctx.Data["LatestCommitUser"] = nil
 
-	if blob.IsBinary {
+	// Breadcrumb
+	ctx.Data["TreeNames"] = strings.Split(filePath, "/")
+
+	if blob.IsBinary != nil && *blob.IsBinary {
 		ctx.Data["IsFileTooLarge"] = false
 		ctx.Data["IsTextFile"] = false
-	} else if blob.IsLarge {
+	} else if blob.IsLarge != nil && *blob.IsLarge {
 		ctx.Data["IsFileTooLarge"] = true
 		ctx.Data["IsTextFile"] = true
 	} else {
 		ctx.Data["IsTextFile"] = true
-		ctx.Data["FileContent"] = blob.Content
+		ctx.Data["IsPlainText"] = true
+		if blob.Content != nil {
+			ctx.Data["FileContent"] = *blob.Content
+		}
 		ctx.Data["Language"] = blob.Language
 	}
 
-	if blob.HasConflict {
+	if blob.HasConflict != nil && *blob.HasConflict {
 		ctx.Data["HasConflict"] = true
+	}
+
+	renderRepoTopics(ctx)
+	if ctx.Written() {
+		return
 	}
 
 	ctx.HTML(http.StatusOK, tplRepoHome)
