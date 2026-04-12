@@ -221,7 +221,7 @@ func CreateRepositoryDirectly(ctx context.Context, doer, u *user_model.User, opt
 	}
 
 	if opts.VCSType == "" {
-		opts.VCSType = repo_model.VCSTypeGit
+		opts.VCSType = repo_model.VCSTypeJJ
 	}
 
 	repo := &repo_model.Repository{
