@@ -169,6 +169,7 @@ func CommitsJJ(ctx *context.Context) {
 		HasConflict   bool
 		Parents       []string
 		Bookmarks     []string
+		Timestamp     string
 	}
 
 	commits := make([]commitDisplay, 0, len(commitsResp.Commits))
@@ -184,6 +185,7 @@ func CommitsJJ(ctx *context.Context) {
 			HasConflict:   c.HasConflict,
 			Parents:       c.Parents,
 			Bookmarks:     c.Bookmarks,
+			Timestamp:     c.Author.Timestamp.Format("2006-01-02"),
 		})
 	}
 
@@ -191,6 +193,9 @@ func CommitsJJ(ctx *context.Context) {
 	ctx.Data["CommitCount"] = commitsResp.Total
 	ctx.Data["Username"] = ctx.Repo.Owner.Name
 	ctx.Data["Reponame"] = ctx.Repo.Repository.Name
+	ctx.Data["BranchName"] = refName
+	ctx.Data["BranchNameSubURL"] = "src/branch/" + refName
+	ctx.Data["PageIsCommits"] = true
 
 	pager := context.NewPagination(commitsResp.Total, pageSize, page, 5)
 	pager.SetDefaultParams(ctx)

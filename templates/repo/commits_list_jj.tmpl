@@ -1,0 +1,54 @@
+<div class="ui attached table segment commit-table">
+	<table class="ui very basic striped table unstackable" id="commits-table">
+		<thead>
+			<tr>
+				<th class="three wide">Author</th>
+				<th class="two wide sha">Change</th>
+				<th class="two wide sha">Commit</th>
+				<th class="six wide message">Message</th>
+				<th class="two wide right aligned">Date</th>
+				<th class="one wide"></th>
+			</tr>
+		</thead>
+		<tbody class="commit-list">
+			{{range .Commits}}
+				<tr>
+					<td class="author">
+						<div class="tw-flex">
+							{{ctx.AvatarUtils.AvatarByEmail .AuthorEmail .AuthorName 28 "tw-mr-2"}}
+							<span class="author-wrapper">{{.AuthorName}}</span>
+						</div>
+					</td>
+					<td class="sha">
+						<span class="ui primary sha label" data-tooltip-content="{{.ChangeID}}">
+							<code class="shortsha">{{.ShortChangeID}}</code>
+						</span>
+						<button class="btn interact-bg tw-p-1" data-tooltip-content="Copy change ID" data-clipboard-text="{{.ChangeID}}">{{svg "octicon-copy" 14}}</button>
+					</td>
+					<td class="sha">
+						<a class="ui sha label" href="{{$.RepoLink}}/commit/{{PathEscape .CommitID}}">
+							<code class="shortsha">{{.ShortID}}</code>
+						</a>
+					</td>
+					<td class="message">
+						<span class="message-wrapper">
+							<span class="commit-summary" title="{{.Subject}}">
+								{{if .HasConflict}}{{svg "octicon-alert" 14 "tw-mr-1 tw-text-yellow"}}{{end}}
+								{{.Subject}}
+							</span>
+						</span>
+						{{if .Bookmarks}}
+							{{range .Bookmarks}}
+								<span class="ui tiny label">{{svg "octicon-bookmark" 12}} {{.}}</span>
+							{{end}}
+						{{end}}
+					</td>
+					<td class="text right aligned">{{if .Timestamp}}{{.Timestamp}}{{end}}</td>
+					<td class="text right aligned tw-py-0">
+						<button class="btn interact-bg tw-p-2" data-tooltip-content="Copy commit ID" data-clipboard-text="{{.CommitID}}">{{svg "octicon-copy"}}</button>
+					</td>
+				</tr>
+			{{end}}
+		</tbody>
+	</table>
+</div>
