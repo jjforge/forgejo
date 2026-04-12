@@ -288,10 +288,7 @@ func CreatePost(ctx *context.Context) {
 			return
 		}
 	} else {
-		vcsType := repo_model.VCSType(form.VCSType)
-		if vcsType == "" {
-			vcsType = repo_model.VCSTypeGit
-		}
+		vcsType := repo_model.VCSTypeJJ
 
 		repo, err = repo_service.CreateRepository(ctx, ctx.Doer, ctxUser, repo_service.CreateRepoOptions{
 			Name:             form.RepoName,
