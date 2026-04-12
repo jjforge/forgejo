@@ -184,7 +184,11 @@
 					</form>
 				</div>
 			{{end}}
-			{{template "repo/view_list" .}}
+			{{if .IsJJRepo}}
+				{{template "repo/view_list_jj" .}}
+			{{else}}
+				{{template "repo/view_list" .}}
+			{{end}}
 		{{end}}
 	</div>
 </div>

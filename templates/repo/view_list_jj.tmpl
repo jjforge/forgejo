@@ -1,0 +1,44 @@
+<table id="repo-files-table" class="ui single line table tw-mt-0">
+	<thead>
+		<tr class="commit-list">
+			<th colspan="2">
+				<div class="tw-flex">
+					<div class="latest-commit">
+						{{if .LatestCommitDescription}}
+							<span class="text grey">{{.LatestCommitDescription}}</span>
+						{{end}}
+					</div>
+				</div>
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		{{if .HasParentPath}}
+			<tr class="has-parent">
+				<td colspan="2"><a class="muted" href="{{.BranchLink}}{{if .ParentPath}}{{PathEscapeSegments .ParentPath}}{{end}}">{{svg "octicon-reply" 16 "tw-mr-2"}}..</a></td>
+			</tr>
+		{{end}}
+		{{range $item := .Files}}
+			<tr data-entryname="{{$item.Name}}" data-ready="true" class="ready entry">
+				<td class="name four wide">
+					<span class="truncate">
+						{{if $item.IsDir}}
+							<a class="muted" href="{{$.TreeLink}}/{{PathEscapeSegments $item.Name}}" title="{{$item.Name}}">
+								{{svg "octicon-file-directory-fill" 16 "tw-mr-2"}}{{$item.Name}}
+							</a>
+						{{else if $item.IsLink}}
+							{{svg "octicon-file-symlink-file" 16 "tw-mr-2"}}{{$item.Name}}
+						{{else}}
+							<a class="muted" href="{{$.TreeLink}}/{{PathEscapeSegments $item.Name}}" title="{{$item.Name}}">
+								{{svg "octicon-file" 16 "tw-mr-2"}}{{$item.Name}}
+							</a>
+						{{end}}
+					</span>
+				</td>
+				<td class="message nine wide">
+					<span class="truncate text grey"></span>
+				</td>
+			</tr>
+		{{end}}
+	</tbody>
+</table>
