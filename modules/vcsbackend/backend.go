@@ -50,4 +50,8 @@ type VCSBackend interface {
 
 	// DeleteRef deletes a ref (branch/bookmark).
 	DeleteRef(name string) error
+
+	// GetOperations returns paginated jj operation log entries.
+	// Returns an error for git repos (not applicable).
+	GetOperations(page, perPage int) (*OperationsResponse, error)
 }

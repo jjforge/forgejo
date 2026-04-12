@@ -270,3 +270,27 @@ func (b *JjBackend) CreateRef(name, commitID string) error {
 func (b *JjBackend) DeleteRef(name string) error {
 	return fmt.Errorf("JjBackend.DeleteRef: not yet implemented")
 }
+
+func (b *JjBackend) GetOperations(page, perPage int) (*OperationsResponse, error) {
+	params := url.Values{}
+	params.Set("page", fmt.Sprintf("%d", page))
+	params.Set("per_page", fmt.Sprintf("%d", perPage))
+
+	reqURL := fmt.Sprintf("%s/operations?%s", b.baseURL(), params.Encode())
+
+	req, err := b.newRequest("GET", reqURL)
+	if err != nil {
+		return nil, fmt.Errorf("JjBackend.GetOperations: %w", err)
+	}
+
+	body, err := b.doRequest(req)
+	if err != nil {
+		return nil, fmt.Errorf("JjBackend.GetOperations: %w", err)
+	}
+
+	var resp OperationsResponse
+	if err := json.Unmarshal(body, &resp); err != nil {
+		return nil, fmt.Errorf("JjBackend.GetOperations: unmarshal: %w", err)
+	}
+	return &resp, nil
+}

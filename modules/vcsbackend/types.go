@@ -146,6 +146,25 @@ type BlameResponse struct {
 	Entries []BlameEntry `json:"entries"`
 }
 
+// OperationInfo represents a single jj operation.
+type OperationInfo struct {
+	ID          string   `json:"id"`
+	Description string   `json:"description"`
+	Timestamp   string   `json:"timestamp"`
+	Hostname    string   `json:"hostname"`
+	Username    string   `json:"username"`
+	Parents     []string `json:"parents"`
+	Heads       []string `json:"heads"`
+}
+
+// OperationsResponse is the result of listing operations.
+type OperationsResponse struct {
+	Operations []OperationInfo `json:"operations"`
+	Total      int             `json:"total,omitempty"`
+	Page       int             `json:"page,omitempty"`
+	PerPage    int             `json:"per_page,omitempty"`
+}
+
 // MergeStrategy defines how merges are performed.
 type MergeStrategy string
 

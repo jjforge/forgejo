@@ -386,3 +386,7 @@ func (b *GitBackend) CreateRef(name, commitID string) error {
 func (b *GitBackend) DeleteRef(name string) error {
 	return fmt.Errorf("GitBackend.DeleteRef: not yet implemented")
 }
+
+func (b *GitBackend) GetOperations(page, perPage int) (*OperationsResponse, error) {
+	return nil, fmt.Errorf("GitBackend.GetOperations: not applicable for git repos")
+}

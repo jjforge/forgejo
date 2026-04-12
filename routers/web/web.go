@@ -1625,6 +1625,8 @@ func registerRoutes(m *web.Route) {
 			m.Get("/commit/*", context.RepoRefByType(context.RepoRefCommit), repo.RefBlame)
 		}, repo.MustBeNotEmpty, reqRepoCodeReader)
 
+		m.Get("/operations", reqRepoCodeReader, repo.Operations)
+
 		m.Group("", func() {
 			m.Get("/graph", repo.Graph)
 			m.Get("/commit/{sha:([a-f0-9]{4,64})$}", repo.SetEditorconfigIfExists, repo.SetDiffViewStyle, repo.SetWhitespaceBehavior, repo.Diff)

@@ -1,0 +1,42 @@
+{{template "base/head" .}}
+<div role="main" aria-label="{{.Title}}" class="page-content repository operations">
+	{{template "repo/header" .}}
+	<div class="ui container">
+		{{template "repo/sub_menu" .}}
+		<h4 class="ui top attached header">
+			{{svg "octicon-history" 16 "tw-mr-2"}} Operation Log
+		</h4>
+		<div class="ui attached segment">
+			{{if .Operations}}
+				<table class="ui very basic striped table unstackable">
+					<thead>
+						<tr>
+							<th class="three wide">Operation</th>
+							<th class="six wide">Description</th>
+							<th class="two wide">User</th>
+							<th class="two wide">Host</th>
+							<th class="three wide right aligned">Time</th>
+						</tr>
+					</thead>
+					<tbody>
+						{{range .Operations}}
+							<tr>
+								<td>
+									<code class="shortsha" data-tooltip-content="{{.ID}}">{{if gt (len .ID) 12}}{{slice .ID 0 12}}{{else}}{{.ID}}{{end}}</code>
+								</td>
+								<td>{{.Description}}</td>
+								<td>{{.Username}}</td>
+								<td>{{.Hostname}}</td>
+								<td class="text right aligned">{{.Timestamp}}</td>
+							</tr>
+						{{end}}
+					</tbody>
+				</table>
+			{{else}}
+				<p class="tw-text-center tw-py-4">No operations recorded yet.</p>
+			{{end}}
+		</div>
+		{{template "base/paginate" .}}
+	</div>
+</div>
+{{template "base/footer" .}}
