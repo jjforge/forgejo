@@ -963,6 +963,14 @@ func RepoRefByType(refType RepoRefType, ignoreNotExistErr ...bool) func(*Context
 		if ctx.Repo.Repository.IsBeingCreated() {
 			return nil // no git repo, so do nothing
 		}
+		// jj repos don't have a local git repository -- skip git ref resolution.
+		// Ref resolution happens in the VCSBackend/JjBackend instead.
+		if ctx.Repo.Repository.IsJJ() {
+			ctx.Repo.IsViewBranch = true
+			ctx.Repo.BranchName = ctx.Repo.Repository.DefaultBranch
+			ctx.Data["TreePath"] = ""
+			return nil
+		}
 		// Empty repository does not have reference information.
 		if ctx.Repo.Repository.IsEmpty {
 			// assume the user is viewing the (non-existent) default branch
