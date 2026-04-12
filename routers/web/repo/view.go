@@ -1066,6 +1066,18 @@ func renderHomeCodeJJ(ctx *context.Context) {
 	ctx.Data["BranchNameSubURL"] = "src/branch/" + refName
 	ctx.Data["CommitID"] = ""
 	ctx.Data["IsTextFile"] = false
+	ctx.Data["RefName"] = refName
+	ctx.Data["BranchLink"] = branchLink
+	ctx.Data["TreePath"] = treePath
+	ctx.Data["IsViewBranch"] = true
+	ctx.Data["IsViewFile"] = false
+	ctx.Data["IsBlame"] = false
+	ctx.Data["CanEnableEditor"] = false
+	ctx.Data["CanWriteCode"] = false
+	ctx.Data["IsViewTag"] = false
+	ctx.Data["TagName"] = ""
+	ctx.Data["CanCompareOrPull"] = false
+	ctx.Data["DisableDownloadSourceArchives"] = true
 
 	renderRepoTopics(ctx)
 	if ctx.Written() {
