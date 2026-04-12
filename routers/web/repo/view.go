@@ -1022,6 +1022,15 @@ func renderHomeCodeJJ(ctx *context.Context) {
 		return
 	}
 
+	// If tree returned empty entries for a non-root path, it's likely a file
+	if len(treeResp.Entries) == 0 && treePath != "" {
+		blobResp, blobErr := backend.GetBlob(refName, treePath)
+		if blobErr == nil {
+			renderFileJJ(ctx, blobResp, treePath)
+			return
+		}
+	}
+
 	// Render directory listing
 	ctx.Data["IsViewDirectory"] = true
 	title := ctx.Repo.Repository.Owner.Name + "/" + ctx.Repo.Repository.Name
