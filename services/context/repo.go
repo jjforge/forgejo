@@ -965,10 +965,27 @@ func RepoRefByType(refType RepoRefType, ignoreNotExistErr ...bool) func(*Context
 		}
 		// jj repos don't have a local git repository -- skip git ref resolution.
 		// Ref resolution happens in the VCSBackend/JjBackend instead.
+		// Parse branch name and tree path from the URL wildcard parameter.
 		if ctx.Repo.Repository.IsJJ() {
 			ctx.Repo.IsViewBranch = true
-			ctx.Repo.BranchName = ctx.Repo.Repository.DefaultBranch
-			ctx.Data["TreePath"] = ""
+			refName := ctx.Repo.Repository.DefaultBranch
+			treePath := ""
+
+			// Parse the wildcard path: "branch/{name}/{path...}" or "tag/{name}/{path...}"
+			if wildcardPath := ctx.Params("*"); wildcardPath != "" {
+				parts := strings.SplitN(wildcardPath, "/", 3)
+				if len(parts) >= 2 {
+					// parts[0] = "branch" or "tag", parts[1] = ref name
+					refName = parts[1]
+					if len(parts) >= 3 {
+						treePath = parts[2]
+					}
+				}
+			}
+
+			ctx.Repo.BranchName = refName
+			ctx.Repo.TreePath = treePath
+			ctx.Data["TreePath"] = treePath
 			return nil
 		}
 		// Empty repository does not have reference information.
