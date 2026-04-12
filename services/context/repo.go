@@ -971,15 +971,13 @@ func RepoRefByType(refType RepoRefType, ignoreNotExistErr ...bool) func(*Context
 			refName := ctx.Repo.Repository.DefaultBranch
 			treePath := ""
 
-			// Parse the wildcard path: "branch/{name}/{path...}" or "tag/{name}/{path...}"
+			// Parse the wildcard path: "{refname}/{path...}"
+			// The route is /src/branch/*, so * = "main/README.md" (no "branch" prefix)
 			if wildcardPath := ctx.Params("*"); wildcardPath != "" {
-				parts := strings.SplitN(wildcardPath, "/", 3)
+				parts := strings.SplitN(wildcardPath, "/", 2)
+				refName = parts[0]
 				if len(parts) >= 2 {
-					// parts[0] = "branch" or "tag", parts[1] = ref name
-					refName = parts[1]
-					if len(parts) >= 3 {
-						treePath = parts[2]
-					}
+					treePath = parts[1]
 				}
 			}
 
