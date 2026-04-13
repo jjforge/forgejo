@@ -1,0 +1,41 @@
+{{template "base/head" .}}
+<div role="main" aria-label="{{.Title}}" class="page-content ui repository branches">
+	{{template "repo/header" .}}
+	<div class="ui container">
+		{{template "base/alert" .}}
+		{{template "repo/sub_menu" .}}
+
+		<h4 class="ui top attached header">
+			<span data-tooltip-content="A named pointer to a change — similar to a git branch">Bookmarks</span>
+		</h4>
+
+		<div class="ui attached table segment">
+			<table class="ui very basic striped fixed table single line">
+				<tbody>
+					{{range .Bookmarks}}
+					<tr>
+						<td>
+							<div class="flex-text-block">
+								<a class="gt-ellipsis" href="{{$.RepoLink}}/src/bookmark/{{PathEscapeSegments .Name}}">{{.Name}}</a>
+								<button class="btn interact-fg tw-px-1" data-clipboard-text="{{.Name}}" data-tooltip-content="Copy bookmark name">{{svg "octicon-copy" 14}}</button>
+							</div>
+							<p class="info tw-flex tw-items-center tw-my-1">
+								{{svg "octicon-git-commit" 16 "tw-mr-1"}}
+								<code>{{.ShortID}}</code>
+								{{if eq .Type "anonymous"}}
+									<span class="ui label tw-ml-2" data-tooltip-content="A change not pointed to by any bookmark">anonymous head</span>
+								{{end}}
+							</p>
+						</td>
+					</tr>
+					{{else}}
+					<tr>
+						<td>No bookmarks. Create one with <code>jj bookmark create</code>.</td>
+					</tr>
+					{{end}}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+{{template "base/footer" .}}
