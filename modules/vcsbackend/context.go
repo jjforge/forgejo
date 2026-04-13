@@ -22,6 +22,15 @@ type ContextData struct {
 	// RefLabel is how to label refs: "Bookmark" vs "Branch".
 	RefLabel string
 
+	// CommitLabel is "Change" for jj repos, "Commit" for git repos.
+	CommitLabel string
+
+	// CommitsLabel is "Changes" for jj repos, "Commits" for git repos.
+	CommitsLabel string
+
+	// RevisionLabel is "Revision" for jj repos, "Ref" for git repos.
+	RevisionLabel string
+
 	// ShowChangeID is true for jj repos (show change_id column in commits).
 	ShowChangeID bool
 
@@ -41,6 +50,9 @@ func GetContextData(repo *repo_model.Repository) ContextData {
 			BranchLabel:      "Bookmark",
 			BranchesLabel:    "Bookmarks",
 			RefLabel:         "Bookmark",
+			CommitLabel:      "Change",
+			CommitsLabel:     "Changes",
+			RevisionLabel:    "Revision",
 			ShowChangeID:     true,
 			ShowConflicts:    true,
 			ShowOperationLog: true,
@@ -51,6 +63,9 @@ func GetContextData(repo *repo_model.Repository) ContextData {
 		BranchLabel:      "Branch",
 		BranchesLabel:    "Branches",
 		RefLabel:         "Branch",
+		CommitLabel:      "Commit",
+		CommitsLabel:     "Commits",
+		RevisionLabel:    "Ref",
 		ShowChangeID:     false,
 		ShowConflicts:    false,
 		ShowOperationLog: false,
@@ -65,6 +80,9 @@ func InjectContextData(data map[string]any, repo *repo_model.Repository) {
 	data["BranchLabel"] = cd.BranchLabel
 	data["BranchesLabel"] = cd.BranchesLabel
 	data["RefLabel"] = cd.RefLabel
+	data["CommitLabel"] = cd.CommitLabel
+	data["CommitsLabel"] = cd.CommitsLabel
+	data["RevisionLabel"] = cd.RevisionLabel
 	data["ShowChangeID"] = cd.ShowChangeID
 	data["ShowConflicts"] = cd.ShowConflicts
 	data["ShowOperationLog"] = cd.ShowOperationLog

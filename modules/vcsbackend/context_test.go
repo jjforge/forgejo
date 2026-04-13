@@ -61,3 +61,35 @@ func TestInjectContextDataGit(t *testing.T) {
 	assert.Equal(t, false, data["IsJJRepo"])
 	assert.Equal(t, "Branch", data["BranchLabel"])
 }
+
+func TestGetContextData_JJ_HasCommitLabels(t *testing.T) {
+	repo := &repo_model.Repository{VCSBackendType: repo_model.VCSTypeJJ}
+	cd := GetContextData(repo)
+
+	assert.Equal(t, "Change", cd.CommitLabel)
+	assert.Equal(t, "Changes", cd.CommitsLabel)
+	assert.Equal(t, "Revision", cd.RevisionLabel)
+}
+
+func TestGetContextData_Git_HasCommitLabels(t *testing.T) {
+	repo := &repo_model.Repository{VCSBackendType: repo_model.VCSTypeGit}
+	cd := GetContextData(repo)
+
+	assert.Equal(t, "Commit", cd.CommitLabel)
+	assert.Equal(t, "Commits", cd.CommitsLabel)
+	assert.Equal(t, "Ref", cd.RevisionLabel)
+}
+
+func TestInjectContextData_CommitLabels(t *testing.T) {
+	dataJJ := make(map[string]any)
+	InjectContextData(dataJJ, &repo_model.Repository{VCSBackendType: repo_model.VCSTypeJJ})
+	assert.Equal(t, "Change", dataJJ["CommitLabel"])
+	assert.Equal(t, "Changes", dataJJ["CommitsLabel"])
+	assert.Equal(t, "Revision", dataJJ["RevisionLabel"])
+
+	dataGit := make(map[string]any)
+	InjectContextData(dataGit, &repo_model.Repository{VCSBackendType: repo_model.VCSTypeGit})
+	assert.Equal(t, "Commit", dataGit["CommitLabel"])
+	assert.Equal(t, "Commits", dataGit["CommitsLabel"])
+	assert.Equal(t, "Ref", dataGit["RevisionLabel"])
+}

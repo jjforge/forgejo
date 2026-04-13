@@ -64,6 +64,9 @@ func TestContextIntegrationAllExpectedKeysPresent(t *testing.T) {
 		"BranchLabel",
 		"BranchesLabel",
 		"RefLabel",
+		"CommitLabel",
+		"CommitsLabel",
+		"RevisionLabel",
 		"ShowChangeID",
 		"ShowConflicts",
 		"ShowOperationLog",
@@ -98,6 +101,9 @@ func TestContextIntegrationNoExtraKeysInjected(t *testing.T) {
 		"BranchLabel":      true,
 		"BranchesLabel":    true,
 		"RefLabel":         true,
+		"CommitLabel":      true,
+		"CommitsLabel":     true,
+		"RevisionLabel":    true,
 		"ShowChangeID":     true,
 		"ShowConflicts":    true,
 		"ShowOperationLog": true,
@@ -137,7 +143,7 @@ func TestContextIntegrationBooleanTypesCorrect(t *testing.T) {
 		assert.True(t, ok, "%q should be a bool, got %T", key, data[key])
 	}
 
-	stringKeys := []string{"BranchLabel", "BranchesLabel", "RefLabel"}
+	stringKeys := []string{"BranchLabel", "BranchesLabel", "RefLabel", "CommitLabel", "CommitsLabel", "RevisionLabel"}
 	for _, key := range stringKeys {
 		_, ok := data[key].(string)
 		assert.True(t, ok, "%q should be a string, got %T", key, data[key])
@@ -167,6 +173,9 @@ func TestContextIntegrationGetContextDataConsistentWithInject(t *testing.T) {
 			assert.Equal(t, cd.BranchLabel, data["BranchLabel"])
 			assert.Equal(t, cd.BranchesLabel, data["BranchesLabel"])
 			assert.Equal(t, cd.RefLabel, data["RefLabel"])
+			assert.Equal(t, cd.CommitLabel, data["CommitLabel"])
+			assert.Equal(t, cd.CommitsLabel, data["CommitsLabel"])
+			assert.Equal(t, cd.RevisionLabel, data["RevisionLabel"])
 			assert.Equal(t, cd.ShowChangeID, data["ShowChangeID"])
 			assert.Equal(t, cd.ShowConflicts, data["ShowConflicts"])
 			assert.Equal(t, cd.ShowOperationLog, data["ShowOperationLog"])
