@@ -36,10 +36,11 @@ import (
 )
 
 const (
-	tplCommits    base.TplName = "repo/commits"
-	tplGraph      base.TplName = "repo/graph"
-	tplGraphDiv   base.TplName = "repo/graph/div"
-	tplCommitPage base.TplName = "repo/commit_page"
+	tplCommits     base.TplName = "repo/commits"
+	tplGraph       base.TplName = "repo/graph"
+	tplGraphDiv    base.TplName = "repo/graph/div"
+	tplCommitPage  base.TplName = "repo/commit_page"
+	tplRepoEmptyJJ base.TplName = "repo/empty_jj"
 )
 
 // RefCommits render commits page
@@ -129,7 +130,7 @@ func CommitsJJ(ctx *context.Context) {
 		if err != nil {
 			// Sidecar 404 means no data pushed yet -- show empty repo page
 			if strings.Contains(err.Error(), "status 404") {
-				ctx.HTML(http.StatusOK, tplRepoEMPTY)
+				ctx.HTML(http.StatusOK, tplRepoEmptyJJ)
 				return
 			}
 			ctx.ServerError("VCSBackend.GetDefaultRef", err)
@@ -151,7 +152,7 @@ func CommitsJJ(ctx *context.Context) {
 	if err != nil {
 		// Sidecar 404 means no data pushed yet -- show empty repo page
 		if strings.Contains(err.Error(), "status 404") {
-			ctx.HTML(http.StatusOK, tplRepoEMPTY)
+			ctx.HTML(http.StatusOK, tplRepoEmptyJJ)
 			return
 		}
 		ctx.ServerError("VCSBackend.GetCommits", err)

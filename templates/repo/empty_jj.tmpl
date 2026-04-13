@@ -1,0 +1,17 @@
+{{template "base/head" .}}
+<div role="main" aria-label="{{.Title}}" class="page-content repository empty">
+	{{template "repo/header" .}}
+	<div class="ui container">
+		<div class="ui placeholder segment">
+			<div class="ui icon header">
+				{{svg "octicon-repo" 48}}
+				<h2>No changes yet</h2>
+			</div>
+			<p>Push your first change with:</p>
+			<div class="ui segment tw-text-left">
+				<pre><code>jj forge push</code></pre>
+			</div>
+		</div>
+	</div>
+</div>
+{{template "base/footer" .}}
