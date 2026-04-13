@@ -57,6 +57,9 @@ func UnmarshalFromCommit(commit *git.Commit, filename string) (*api.IssueTemplat
 
 // UnmarshalFromRepo parses out a valid template from the head commit of the branch
 func UnmarshalFromRepo(repo *git.Repository, branch, filename string) (*api.IssueTemplate, error) {
+	if repo == nil {
+		return nil, fmt.Errorf("git repository is nil")
+	}
 	commit, err := repo.GetBranchCommit(branch)
 	if err != nil {
 		return nil, fmt.Errorf("get commit on branch %q: %w", branch, err)
