@@ -107,13 +107,13 @@ func TestJjBackendGetBlob(t *testing.T) {
 func TestJjBackendGetCommits(t *testing.T) {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, "GET", r.Method)
-		assert.Contains(t, r.URL.Path, "/api/jj/alice/myrepo/commits")
+		assert.Contains(t, r.URL.Path, "/api/jj/alice/myrepo/changes")
 		assert.Equal(t, "main", r.URL.Query().Get("ref"))
 		assert.Equal(t, "1", r.URL.Query().Get("page"))
 		assert.Equal(t, "20", r.URL.Query().Get("per_page"))
 
 		resp := map[string]any{
-			"commits": []map[string]any{
+			"changes": []map[string]any{
 				{
 					"commit_id":       "abc123def456",
 					"change_id":       "xyz789",
@@ -163,7 +163,7 @@ func TestJjBackendGetCommits(t *testing.T) {
 func TestJjBackendGetCommit(t *testing.T) {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, "GET", r.Method)
-		assert.Contains(t, r.URL.Path, "/api/jj/alice/myrepo/commit/abc123")
+		assert.Contains(t, r.URL.Path, "/api/jj/alice/myrepo/changes/abc123")
 
 		resp := map[string]any{
 			"commit_id":       "abc123def456",

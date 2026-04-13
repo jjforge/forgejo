@@ -144,8 +144,8 @@ func mockSidecar(t *testing.T) *httptest.Server {
 		json.NewEncoder(w).Encode(resp)
 	})
 
-	// Commits endpoint: /api/jj/:owner/:repo/commits
-	mux.HandleFunc("/api/jj/alice/myrepo/commits", func(w http.ResponseWriter, r *http.Request) {
+	// Changes endpoint: /api/jj/:owner/:repo/changes
+	mux.HandleFunc("/api/jj/alice/myrepo/changes", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "GET" {
 			w.WriteHeader(http.StatusMethodNotAllowed)
 			return
@@ -159,7 +159,7 @@ func mockSidecar(t *testing.T) *httptest.Server {
 		if page == "2" {
 			// Second page: empty
 			resp = map[string]any{
-				"commits":  []any{},
+				"changes":  []any{},
 				"total":    3,
 				"page":     2,
 				"per_page": 2,
@@ -171,7 +171,7 @@ func mockSidecar(t *testing.T) *httptest.Server {
 				pp = 2
 			}
 			resp = map[string]any{
-				"commits": []map[string]any{
+				"changes": []map[string]any{
 					{
 						"commit_id":       "abc123def456789000",
 						"change_id":       "xyz789abc",
@@ -197,11 +197,11 @@ func mockSidecar(t *testing.T) *httptest.Server {
 							"email":     "bob@example.com",
 							"timestamp": "2026-03-09T10:00:00Z",
 						},
-						"subject":        "Initial commit",
-						"has_conflict":   false,
+						"subject":         "Initial commit",
+						"has_conflict":    false,
 						"is_working_copy": false,
-						"parents":        []string{},
-						"bookmarks":      []string{},
+						"parents":         []string{},
+						"bookmarks":       []string{},
 					},
 					{
 						"commit_id":       "ghi789def012345678",
@@ -213,11 +213,11 @@ func mockSidecar(t *testing.T) *httptest.Server {
 							"email":     "alice@example.com",
 							"timestamp": "2026-03-10T16:00:00Z",
 						},
-						"subject":        "WIP: add feature",
-						"has_conflict":   true,
+						"subject":         "WIP: add feature",
+						"has_conflict":    true,
 						"is_working_copy": true,
-						"parents":        []string{"abc123def456789000"},
-						"bookmarks":      []string{},
+						"parents":         []string{"abc123def456789000"},
+						"bookmarks":       []string{},
 					},
 				},
 				"total":    3,
@@ -230,14 +230,14 @@ func mockSidecar(t *testing.T) *httptest.Server {
 		json.NewEncoder(w).Encode(resp)
 	})
 
-	// Commit detail endpoint: /api/jj/:owner/:repo/commit/:id
-	mux.HandleFunc("/api/jj/alice/myrepo/commit/", func(w http.ResponseWriter, r *http.Request) {
+	// Change detail endpoint: /api/jj/:owner/:repo/changes/:id
+	mux.HandleFunc("/api/jj/alice/myrepo/changes/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "GET" {
 			w.WriteHeader(http.StatusMethodNotAllowed)
 			return
 		}
 
-		commitID := strings.TrimPrefix(r.URL.Path, "/api/jj/alice/myrepo/commit/")
+		commitID := strings.TrimPrefix(r.URL.Path, "/api/jj/alice/myrepo/changes/")
 
 		var resp map[string]any
 
@@ -296,12 +296,12 @@ func mockSidecar(t *testing.T) *httptest.Server {
 					"email":     "bob@example.com",
 					"timestamp": "2026-03-10T16:00:00Z",
 				},
-				"subject":         "Conflicted merge",
-				"message":         "Conflicted merge\n\nThis commit has conflicts.",
-				"has_conflict":    true,
-				"parents":         []string{"parent111", "parent222"},
-				"bookmarks":       []string{},
-				"conflict_files":  []string{"file1.txt", "file2.txt"},
+				"subject":        "Conflicted merge",
+				"message":        "Conflicted merge\n\nThis commit has conflicts.",
+				"has_conflict":   true,
+				"parents":        []string{"parent111", "parent222"},
+				"bookmarks":      []string{},
+				"conflict_files": []string{"file1.txt", "file2.txt"},
 				"stats": map[string]any{
 					"files_changed": 2,
 					"insertions":    10,
@@ -781,13 +781,13 @@ func TestIntegrationJjBackendAuthHeaderSentOnAllEndpoints(t *testing.T) {
 
 	emptyTree := map[string]any{"path": "", "ref": "@", "entries": []any{}, "total_entries": 0}
 	emptyBlob := map[string]any{"path": "", "size": 0, "is_binary": false, "is_large": false, "content": ""}
-	emptyCommits := map[string]any{"commits": []any{}, "total": 0, "page": 1, "per_page": 20}
+	emptyChanges := map[string]any{"changes": []any{}, "total": 0, "page": 1, "per_page": 20}
 	emptyRefs := map[string]any{"bookmarks": map[string]string{}, "tags": map[string]string{}, "heads": []any{}, "operation_head": ""}
 
 	mux.HandleFunc("/api/jj/alice/myrepo/tree/", captureAndRespond(emptyTree))
 	mux.HandleFunc("/api/jj/alice/myrepo/blob/", captureAndRespond(emptyBlob))
-	mux.HandleFunc("/api/jj/alice/myrepo/commits", captureAndRespond(emptyCommits))
-	mux.HandleFunc("/api/jj/alice/myrepo/commit/", captureAndRespond(map[string]any{
+	mux.HandleFunc("/api/jj/alice/myrepo/changes", captureAndRespond(emptyChanges))
+	mux.HandleFunc("/api/jj/alice/myrepo/changes/", captureAndRespond(map[string]any{
 		"commit_id": "x", "short_id": "x", "author": map[string]any{
 			"name": "X", "email": "x@x", "timestamp": "2026-01-01T00:00:00Z",
 		}, "subject": "x", "message": "x", "parents": []string{},
