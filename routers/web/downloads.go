@@ -5,13 +5,18 @@ package web
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 
 	"forgejo.org/modules/base"
+	"forgejo.org/modules/setting"
+	"forgejo.org/services/context"
 )
+
+const tplDownloads base.TplName = "downloads"
 
 // BinaryInfo holds metadata about a downloadable binary.
 type BinaryInfo struct {
@@ -164,4 +169,39 @@ func scanDownloadsDir(downloadsPath string) []BinaryInfo {
 	}
 
 	return binaries
+}
+
+// Downloads renders the binary downloads page.
+func Downloads(ctx *context.Context) {
+	ctx.Data["Title"] = "Downloads"
+	ctx.Data["PageIsDownloads"] = true
+
+	downloadsPath := filepath.Join(setting.AppDataPath, "downloads")
+	ctx.Data["Binaries"] = scanDownloadsDir(downloadsPath)
+
+	ctx.HTML(http.StatusOK, tplDownloads)
+}
+
+// DownloadBinary serves a binary file from the downloads directory.
+func DownloadBinary(ctx *context.Context) {
+	binary := ctx.Params(":binary")
+	platform := ctx.Params(":platform")
+	filename := ctx.Params(":filename")
+
+	if !validateDownloadPath(binary, platform, filename) {
+		ctx.NotFound("invalid download path", nil)
+		return
+	}
+
+	filePath := filepath.Join(setting.AppDataPath, "downloads", binary, platform, filename)
+	fi, err := os.Stat(filePath)
+	if err != nil {
+		ctx.NotFound("binary not found", nil)
+		return
+	}
+
+	ctx.Resp.Header().Set("Content-Type", "application/octet-stream")
+	ctx.Resp.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, filename))
+	ctx.Resp.Header().Set("Content-Length", fmt.Sprintf("%d", fi.Size()))
+	http.ServeFile(ctx.Resp, ctx.Req, filePath)
 }
