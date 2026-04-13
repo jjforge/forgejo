@@ -697,6 +697,25 @@ func RepoAssignment(ctx *Context) context.CancelFunc {
 	if repo.IsJJ() {
 		ctx.Data["BranchName"] = ctx.Repo.Repository.DefaultBranch
 		ctx.Data["IsViewBranch"] = true
+
+		// Populate sub_menu counts via sidecar
+		backend := vcsbackend.GetBackend(ctx.Repo.Repository)
+		commitsCount := int64(0)
+		branchesCount := 0
+		refName := ctx.Repo.Repository.DefaultBranch
+		if refName == "" {
+			refName = "@"
+		}
+		if commitsResp, err := backend.GetCommits(refName, "", 1, 1); err == nil {
+			commitsCount = int64(commitsResp.Total)
+		}
+		if refsResp, err := backend.GetRefs(); err == nil {
+			branchesCount = len(refsResp.Branches)
+		}
+		ctx.Data["CommitsCount"] = commitsCount
+		ctx.Data["BranchesCount"] = branchesCount
+		ctx.Data["NumTags"] = 0
+
 		return nil
 	}
 
