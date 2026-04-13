@@ -2,24 +2,18 @@
 	<table class="ui very basic striped table unstackable" id="commits-table">
 		<thead>
 			<tr>
-				<th class="three wide">Author</th>
 				<th class="two wide sha" data-tooltip-content="Stable identifier that persists across rewrites">Change</th>
 				<th class="six wide message">Message</th>
+				<th class="two wide sha" data-tooltip-content="Content hash — changes when a change is rewritten">Revision</th>
+				<th class="three wide">Author</th>
 				<th class="two wide right aligned">Date</th>
-				<th class="one wide"></th>
 			</tr>
 		</thead>
 		<tbody class="commit-list">
 			{{range .Commits}}
 				<tr>
-					<td class="author">
-						<div class="tw-flex">
-							{{ctx.AvatarUtils.AvatarByEmail .AuthorEmail .AuthorName 28 "tw-mr-2"}}
-							<span class="author-wrapper">{{.AuthorName}}</span>
-						</div>
-					</td>
 					<td class="sha">
-						<a class="ui primary sha label" href="{{$.RepoLink}}/change/{{PathEscape .ChangeID}}" data-tooltip-content="Commit: {{.CommitID}}">
+						<a class="ui primary sha label" href="{{$.RepoLink}}/change/{{PathEscape .ChangeID}}" data-tooltip-content="{{.ChangeID}}">
 							<code class="shortsha">{{.ShortChangeID}}</code>
 						</a>
 						<button class="btn interact-bg tw-p-1" data-tooltip-content="Copy change ID" data-clipboard-text="{{.ChangeID}}">{{svg "octicon-copy" 14}}</button>
@@ -37,10 +31,19 @@
 							{{end}}
 						{{end}}
 					</td>
-					<td class="text right aligned">{{if .Timestamp}}{{.Timestamp}}{{end}}</td>
-					<td class="text right aligned tw-py-0">
-						<button class="btn interact-bg tw-p-2" data-tooltip-content="Copy commit ID (content hash)" data-clipboard-text="{{.CommitID}}">{{svg "octicon-copy"}}</button>
+					<td class="sha">
+						<a class="ui sha label" href="{{$.RepoLink}}/change/{{PathEscape .ChangeID}}" data-tooltip-content="{{.CommitID}}">
+							<code class="shortsha">{{.ShortID}}</code>
+						</a>
+						<button class="btn interact-bg tw-p-1" data-tooltip-content="Copy commit ID" data-clipboard-text="{{.CommitID}}">{{svg "octicon-copy" 14}}</button>
 					</td>
+					<td class="author">
+						<div class="tw-flex">
+							{{ctx.AvatarUtils.AvatarByEmail .AuthorEmail .AuthorName 28 "tw-mr-2"}}
+							<span class="author-wrapper">{{.AuthorName}}</span>
+						</div>
+					</td>
+					<td class="text right aligned">{{if .Timestamp}}{{.Timestamp}}{{end}}</td>
 				</tr>
 			{{end}}
 		</tbody>
