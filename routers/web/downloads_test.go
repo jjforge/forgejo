@@ -4,6 +4,7 @@
 package web
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -70,4 +71,37 @@ func TestScanDownloadsDirEmpty(t *testing.T) {
 func TestScanDownloadsDirMissing(t *testing.T) {
 	binaries := scanDownloadsDir("/nonexistent/path")
 	assert.Empty(t, binaries)
+}
+
+func TestValidateDownloadPath(t *testing.T) {
+	tests := []struct {
+		binary   string
+		platform string
+		filename string
+		valid    bool
+	}{
+		{"jj", "linux-x86_64", "jj", true},
+		{"jjf", "darwin-arm64", "jjf", true},
+		{"jj", "windows-x86_64", "jj.exe", true},
+		// Invalid binary name
+		{"nope", "linux-x86_64", "nope", false},
+		// Invalid platform
+		{"jj", "freebsd-x86_64", "jj", false},
+		// Filename doesn't match binary
+		{"jj", "linux-x86_64", "jjf", false},
+		// Path traversal attempts
+		{"../etc", "linux-x86_64", "passwd", false},
+		{"jj", "../../../etc", "passwd", false},
+		{"jj", "linux-x86_64", "../../etc/passwd", false},
+		// Windows binary must have .exe
+		{"jj", "windows-x86_64", "jj", false},
+		// Non-windows must not have .exe
+		{"jj", "linux-x86_64", "jj.exe", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(fmt.Sprintf("%s/%s/%s", tt.binary, tt.platform, tt.filename), func(t *testing.T) {
+			assert.Equal(t, tt.valid, validateDownloadPath(tt.binary, tt.platform, tt.filename))
+		})
+	}
 }

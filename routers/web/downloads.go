@@ -54,6 +54,47 @@ var platformDisplayOS = map[string]string{
 	"windows": "Windows",
 }
 
+var validBinaryNames = map[string]bool{
+	"jj":  true,
+	"jjf": true,
+}
+
+func validateDownloadPath(binary, platform, filename string) bool {
+	// Binary must be in known set
+	if !validBinaryNames[binary] {
+		return false
+	}
+
+	// Platform must be in known set
+	if !validPlatforms[platform] {
+		return false
+	}
+
+	// No path separators in any component
+	if strings.ContainsAny(binary, "/\\") || strings.ContainsAny(platform, "/\\") || strings.ContainsAny(filename, "/\\") {
+		return false
+	}
+
+	// No path traversal
+	if strings.Contains(binary, "..") || strings.Contains(platform, "..") || strings.Contains(filename, "..") {
+		return false
+	}
+
+	// Filename must match binary name (with .exe for windows)
+	isWindows := strings.HasPrefix(platform, "windows-")
+	if isWindows {
+		if filename != binary+".exe" {
+			return false
+		}
+	} else {
+		if filename != binary {
+			return false
+		}
+	}
+
+	return true
+}
+
 func scanDownloadsDir(downloadsPath string) []BinaryInfo {
 	var binaries []BinaryInfo
 
