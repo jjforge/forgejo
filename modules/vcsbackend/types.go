@@ -127,7 +127,7 @@ type RefInfo struct {
 
 // RefsResponse is the result of listing all refs.
 type RefsResponse struct {
-	Branches []RefInfo `json:"branches,omitempty"` // git branches or jj bookmarks
+	Branches []RefInfo `json:"bookmarks,omitempty"` // git branches or jj bookmarks
 	Tags     []RefInfo `json:"tags,omitempty"`
 	Heads    []RefInfo `json:"heads,omitempty"`          // jj anonymous heads
 	OpHead   string    `json:"operation_head,omitempty"` // jj only
