@@ -22,6 +22,7 @@ import (
 	repo_module "forgejo.org/modules/repository"
 	"forgejo.org/modules/setting"
 	"forgejo.org/modules/util"
+	"forgejo.org/modules/vcsbackend"
 	"forgejo.org/modules/web"
 	"forgejo.org/routers/utils"
 	"forgejo.org/services/context"
@@ -37,10 +38,11 @@ const (
 // Branches render repository branch page
 func Branches(ctx *context.Context) {
 	if ctx.Repo.Repository.IsJJ() {
-		ctx.Data["Title"] = "Bookmarks"
-	} else {
-		ctx.Data["Title"] = "Branches"
+		BranchesJJ(ctx)
+		return
 	}
+
+	ctx.Data["Title"] = "Branches"
 	ctx.Data["IsRepoToolbarBranches"] = true
 	ctx.Data["AllowsPulls"] = ctx.Repo.Repository.AllowsPulls(ctx)
 	ctx.Data["IsWriter"] = ctx.Repo.CanWrite(unit.TypeCode)
@@ -90,6 +92,69 @@ func Branches(ctx *context.Context) {
 	ctx.Data["Page"] = pager
 
 	ctx.HTML(http.StatusOK, tplBranch)
+}
+
+const tplBranchJJ base.TplName = "repo/branch/list_jj"
+
+// BranchesJJ renders bookmarks page for jj repositories using VCSBackend.
+func BranchesJJ(ctx *context.Context) {
+	ctx.Data["Title"] = "Bookmarks"
+	ctx.Data["PageIsViewCode"] = true
+	ctx.Data["PageIsBranches"] = true
+	vcsbackend.InjectContextData(ctx.Data, ctx.Repo.Repository)
+
+	backend := vcsbackend.GetBackend(ctx.Repo.Repository)
+
+	refsResp, err := backend.GetRefs()
+	if err != nil {
+		if strings.Contains(err.Error(), "status 404") {
+			ctx.Data["Bookmarks"] = []map[string]string{}
+			ctx.HTML(http.StatusOK, tplBranchJJ)
+			return
+		}
+		ctx.ServerError("VCSBackend.GetRefs", err)
+		return
+	}
+
+	type bookmarkDisplay struct {
+		Name     string
+		CommitID string
+		ShortID  string
+		Type     string
+	}
+
+	bookmarks := make([]bookmarkDisplay, 0, len(refsResp.Branches))
+	for _, b := range refsResp.Branches {
+		shortID := b.CommitID
+		if len(shortID) > 12 {
+			shortID = shortID[:12]
+		}
+		bookmarks = append(bookmarks, bookmarkDisplay{
+			Name:     b.Name,
+			CommitID: b.CommitID,
+			ShortID:  shortID,
+			Type:     b.Type,
+		})
+	}
+
+	ctx.Data["Bookmarks"] = bookmarks
+	ctx.Data["BranchName"] = ctx.Repo.BranchName
+	ctx.Data["BranchNameSubURL"] = "src/bookmark/" + ctx.Repo.BranchName
+
+	// sub_menu counts
+	commitsCount := int64(0)
+	refName := ctx.Repo.BranchName
+	if refName == "" {
+		refName = "@"
+	}
+	if commitsResp, cerr := backend.GetCommits(refName, "", 1, 10000); cerr == nil {
+		commitsCount = int64(commitsResp.Total)
+	}
+	ctx.Data["CommitsCount"] = commitsCount
+	ctx.Data["BranchesCount"] = len(bookmarks)
+	ctx.Data["NumTags"] = 0
+
+	ctx.HTML(http.StatusOK, tplBranchJJ)
 }
 
 // DeleteBranchPost responses for delete merged branch

@@ -44,6 +44,12 @@ const (
 
 // RefCommits render commits page
 func RefCommits(ctx *context.Context) {
+	// jj repos have no git backend — dispatch all commit views through VCSBackend
+	if ctx.Repo.Repository.IsJJ() {
+		CommitsJJ(ctx)
+		return
+	}
+
 	switch {
 	case len(ctx.Repo.TreePath) == 0:
 		Commits(ctx)
@@ -57,12 +63,6 @@ func RefCommits(ctx *context.Context) {
 // Commits render branch's commits
 func Commits(ctx *context.Context) {
 	ctx.Data["PageIsCommits"] = true
-
-	// Dispatch jj repos through VCSBackend
-	if ctx.Repo.Repository.IsJJ() {
-		CommitsJJ(ctx)
-		return
-	}
 
 	if ctx.Repo.Commit == nil {
 		ctx.NotFound("Commit not found", nil)
@@ -119,6 +119,7 @@ func Commits(ctx *context.Context) {
 // CommitsJJ renders the commits page for jj repositories using VCSBackend.
 func CommitsJJ(ctx *context.Context) {
 	ctx.Data["PageIsViewCode"] = true
+	vcsbackend.InjectContextData(ctx.Data, ctx.Repo.Repository)
 
 	backend := vcsbackend.GetBackend(ctx.Repo.Repository)
 
@@ -194,10 +195,19 @@ func CommitsJJ(ctx *context.Context) {
 	ctx.Data["Username"] = ctx.Repo.Owner.Name
 	ctx.Data["Reponame"] = ctx.Repo.Repository.Name
 	ctx.Data["BranchName"] = refName
-	ctx.Data["BranchNameSubURL"] = "src/branch/" + refName
+	ctx.Data["BranchNameSubURL"] = "changes/bookmark/" + refName
 	ctx.Data["PageIsCommits"] = true
 	ctx.Data["CommitID"] = ""
 	ctx.Data["RefName"] = refName
+
+	// sub_menu.tmpl uses CommitsCount (plural) and BranchesCount
+	ctx.Data["CommitsCount"] = int64(commitsResp.Total)
+	branchesCount := 0
+	if refsResp, err := backend.GetRefs(); err == nil {
+		branchesCount = len(refsResp.Branches)
+	}
+	ctx.Data["BranchesCount"] = branchesCount
+	ctx.Data["NumTags"] = 0
 
 	pager := context.NewPagination(commitsResp.Total, pageSize, page, 5)
 	pager.SetDefaultParams(ctx)
