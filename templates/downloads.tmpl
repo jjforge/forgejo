@@ -1,0 +1,47 @@
+{{template "base/head" .}}
+<div role="main" aria-label="{{.Title}}" class="page-content">
+	<div class="ui container">
+		<h1>Downloads</h1>
+
+		{{if .Binaries}}
+			{{range .Binaries}}
+				<div class="tw-mb-8">
+					<h2>
+						{{.Name}}
+						<span class="ui label">{{.Version}}</span>
+					</h2>
+					<p class="tw-text-secondary">{{.Description}}</p>
+					<table class="ui celled table">
+						<thead>
+							<tr>
+								<th>Platform</th>
+								<th>Architecture</th>
+								<th>Size</th>
+								<th>Download</th>
+							</tr>
+						</thead>
+						<tbody>
+							{{range .Platforms}}
+								<tr>
+									<td>{{.OS}}</td>
+									<td>{{.Arch}}</td>
+									<td>{{.Size}}</td>
+									<td><a class="ui primary button tiny" href="{{.URL}}">{{svg "octicon-download"}} {{.Filename}}</a></td>
+								</tr>
+							{{end}}
+						</tbody>
+					</table>
+				</div>
+			{{end}}
+		{{else}}
+			<div class="ui placeholder segment">
+				<div class="ui icon header">
+					{{svg "octicon-package" 48}}
+					<br>
+					No downloads available yet.
+				</div>
+			</div>
+		{{end}}
+	</div>
+</div>
+{{template "base/footer" .}}
