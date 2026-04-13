@@ -369,6 +369,15 @@ func RedirectToRepo(ctx *Base, redirectRepoID int64) {
 	ctx.Redirect(path.Join(setting.AppSubURL, redirectPath), http.StatusMovedPermanently)
 }
 
+// RequireGitRepo returns 404 for jj repositories.
+// Use as middleware on route groups that require git operations.
+// jj repos have no local git repository, so ctx.Repo.GitRepo is nil.
+func RequireGitRepo(ctx *Context) {
+	if ctx.Repo.Repository != nil && ctx.Repo.Repository.IsJJ() {
+		ctx.NotFound("RequireGitRepo", nil)
+	}
+}
+
 func repoAssignment(ctx *Context, repo *repo_model.Repository) {
 	var err error
 	if err = repo.LoadOwner(ctx); err != nil {
