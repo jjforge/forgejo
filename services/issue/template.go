@@ -120,7 +120,7 @@ func IsTemplateConfig(path string) bool {
 func GetTemplatesFromDefaultBranch(repo *repo.Repository, gitRepo *git.Repository) ([]*api.IssueTemplate, map[string]error) {
 	var issueTemplates []*api.IssueTemplate
 
-	if repo.IsEmpty {
+	if repo.IsEmpty || gitRepo == nil {
 		return issueTemplates, nil
 	}
 
@@ -162,7 +162,7 @@ func GetTemplatesFromDefaultBranch(repo *repo.Repository, gitRepo *git.Repositor
 // GetTemplateConfigFromDefaultBranch returns the issue config for this repo.
 // It never returns a nil config.
 func GetTemplateConfigFromDefaultBranch(repo *repo.Repository, gitRepo *git.Repository) (api.IssueConfig, error) {
-	if repo.IsEmpty {
+	if repo.IsEmpty || gitRepo == nil {
 		return GetDefaultTemplateConfig(), nil
 	}
 
