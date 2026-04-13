@@ -4,7 +4,7 @@
 	<div class="ui container">
 		{{template "repo/sub_menu" .}}
 		<h4 class="ui top attached header">
-			{{svg "octicon-history" 16 "tw-mr-2"}} Operation Log
+			{{svg "octicon-history" 16 "tw-mr-2"}} <span data-tooltip-content="History of all repository operations — every state is recoverable">Operation Log</span>
 		</h4>
 		<div class="ui attached segment">
 			{{if .Operations}}
