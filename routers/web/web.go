@@ -1366,7 +1366,7 @@ func registerRoutes(m *web.Route) {
 			m.Get("/edit/*", repo.EditRelease)
 			m.Post("/edit/*", web.Bind(forms.EditReleaseForm{}), repo.EditReleasePost)
 		}, reqSignIn, repo.MustBeNotEmpty, context.RepoMustNotBeArchived(), reqRepoReleaseWriter, repo.CommitInfoCache, context.EnforceQuotaWeb(quota_model.LimitSubjectSizeReposAll, context.QuotaTargetRepo))
-	}, ignSignIn, context.RepoAssignment, context.UnitTypes(), reqRepoReleaseReader)
+	}, ignSignIn, context.RepoAssignment, context.RequireGitRepo, context.UnitTypes(), reqRepoReleaseReader)
 
 	// to maintain compatibility with old attachments
 	m.Group("/{username}/{reponame}", func() {
@@ -1523,12 +1523,12 @@ func registerRoutes(m *web.Route) {
 		m.Group("/archive", func() {
 			m.Get("/*", repo.Download)
 			m.Post("/*", repo.InitiateDownload)
-		}, repo.MustBeNotEmpty, dlSourceEnabled, reqRepoCodeReader)
+		}, context.RequireGitRepo, repo.MustBeNotEmpty, dlSourceEnabled, reqRepoCodeReader)
 
 		m.Group("/branches", func() {
 			m.Get("/list", repo.GetBranchesList)
 			m.Get("", repo.Branches)
-		}, repo.MustBeNotEmpty, context.RepoRef(), reqRepoCodeReader)
+		}, context.RequireGitRepo, repo.MustBeNotEmpty, context.RepoRef(), reqRepoCodeReader)
 
 		m.Group("/blob_excerpt", func() {
 			m.Get("/{sha}", repo.SetEditorconfigIfExists, repo.SetDiffViewStyle, repo.ExcerptBlob)
@@ -1584,7 +1584,7 @@ func registerRoutes(m *web.Route) {
 					m.Post("/submit", web.Bind(forms.SubmitReviewForm{}), repo.SubmitReview)
 				}, context.RepoMustNotBeArchived())
 			})
-		}, repo.MustAllowPulls)
+		}, context.RequireGitRepo, repo.MustAllowPulls)
 
 		m.Group("/media", func() {
 			m.Get("/branch/*", context.RepoRefByType(context.RepoRefBranch), repo.SingleDownloadOrLFS)
@@ -1593,7 +1593,7 @@ func registerRoutes(m *web.Route) {
 			m.Get("/blob/{sha}", context.RepoRefByType(context.RepoRefBlob), repo.DownloadByIDOrLFS)
 			// "/*" route is deprecated, and kept for backward compatibility
 			m.Get("/*", context.RepoRefByType(context.RepoRefLegacy), repo.SingleDownloadOrLFS)
-		}, repo.MustBeNotEmpty, reqRepoCodeReader)
+		}, context.RequireGitRepo, repo.MustBeNotEmpty, reqRepoCodeReader)
 
 		m.Group("/raw", func() {
 			m.Get("/branch/*", context.RepoRefByType(context.RepoRefBranch), repo.SingleDownload)
@@ -1602,14 +1602,14 @@ func registerRoutes(m *web.Route) {
 			m.Get("/blob/{sha}", context.RepoRefByType(context.RepoRefBlob), repo.DownloadByID)
 			// "/*" route is deprecated, and kept for backward compatibility
 			m.Get("/*", context.RepoRefByType(context.RepoRefLegacy), repo.SingleDownload)
-		}, repo.MustBeNotEmpty, reqRepoCodeReader)
+		}, context.RequireGitRepo, repo.MustBeNotEmpty, reqRepoCodeReader)
 
 		m.Group("/render", func() {
 			m.Get("/branch/*", context.RepoRefByType(context.RepoRefBranch), repo.RenderFile)
 			m.Get("/tag/*", context.RepoRefByType(context.RepoRefTag), repo.RenderFile)
 			m.Get("/commit/*", context.RepoRefByType(context.RepoRefCommit), repo.RenderFile)
 			m.Get("/blob/{sha}", context.RepoRefByType(context.RepoRefBlob), repo.RenderFile)
-		}, repo.MustBeNotEmpty, reqRepoCodeReader)
+		}, context.RequireGitRepo, repo.MustBeNotEmpty, reqRepoCodeReader)
 
 		m.Group("/commits", func() {
 			m.Get("/branch/*", context.RepoRefByType(context.RepoRefBranch), repo.RefCommits)
@@ -1623,7 +1623,7 @@ func registerRoutes(m *web.Route) {
 			m.Get("/branch/*", context.RepoRefByType(context.RepoRefBranch), repo.RefBlame)
 			m.Get("/tag/*", context.RepoRefByType(context.RepoRefTag), repo.RefBlame)
 			m.Get("/commit/*", context.RepoRefByType(context.RepoRefCommit), repo.RefBlame)
-		}, repo.MustBeNotEmpty, reqRepoCodeReader)
+		}, context.RequireGitRepo, repo.MustBeNotEmpty, reqRepoCodeReader)
 
 		m.Get("/operations", reqRepoCodeReader, repo.Operations)
 
@@ -1636,7 +1636,7 @@ func registerRoutes(m *web.Route) {
 				m.Post("/remove", context.RepoMustNotBeArchived(), repo.RemoveCommitNotes)
 			}, reqSignIn, reqRepoCodeWriter)
 			m.Get("/cherry-pick/{sha:([a-f0-9]{4,64})$}", repo.SetEditorconfigIfExists, repo.CherryPick)
-		}, repo.MustBeNotEmpty, context.RepoRef(), reqRepoCodeReader)
+		}, context.RequireGitRepo, repo.MustBeNotEmpty, context.RepoRef(), reqRepoCodeReader)
 
 		m.Group("", func() {
 			m.Get("/rss/branch/*", feed.RenderBranchFeed("rss"))
@@ -1674,7 +1674,7 @@ func registerRoutes(m *web.Route) {
 				m.Get("/branch/*", context.RepoRefByType(context.RepoRefBranch), repo.Search)
 				m.Get("/tag/*", context.RepoRefByType(context.RepoRefTag), repo.Search)
 			}
-		}, reqRepoCodeReader)
+		}, context.RequireGitRepo, reqRepoCodeReader)
 	}, ignSignIn, context.RepoAssignment, context.UnitTypes())
 
 	m.Group("/{username}", func() {
