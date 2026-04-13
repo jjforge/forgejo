@@ -17,6 +17,7 @@ const tplOperations = "repo/operations"
 func Operations(ctx *context.Context) {
 	ctx.Data["Title"] = "Operation Log"
 	ctx.Data["PageIsOperations"] = true
+	vcsbackend.InjectContextData(ctx.Data, ctx.Repo.Repository)
 
 	if !ctx.Repo.Repository.IsJJ() {
 		ctx.NotFound("Operations", nil)
