@@ -1528,7 +1528,12 @@ func registerRoutes(m *web.Route) {
 		m.Group("/branches", func() {
 			m.Get("/list", repo.GetBranchesList)
 			m.Get("", repo.Branches)
-		}, context.RequireGitRepo, repo.MustBeNotEmpty, context.RepoRef(), reqRepoCodeReader)
+		}, repo.MustBeNotEmpty, context.RepoRef(), reqRepoCodeReader)
+
+		// jj-native: /bookmarks resolves to same handler (dispatches by VCSType)
+		m.Group("/bookmarks", func() {
+			m.Get("", repo.Branches)
+		}, repo.MustBeNotEmpty, context.RepoRef(), reqRepoCodeReader)
 
 		m.Group("/blob_excerpt", func() {
 			m.Get("/{sha}", repo.SetEditorconfigIfExists, repo.SetDiffViewStyle, repo.ExcerptBlob)
@@ -1619,6 +1624,14 @@ func registerRoutes(m *web.Route) {
 			m.Get("/*", context.RepoRefByType(context.RepoRefLegacy), repo.RefCommits)
 		}, repo.MustBeNotEmpty, reqRepoCodeReader)
 
+		// jj-native: /changes resolves to same handlers (dispatches by VCSType)
+		m.Group("/changes", func() {
+			m.Get("/bookmark/*", context.RepoRefByType(context.RepoRefBranch), repo.RefCommits)
+			m.Get("/tag/*", context.RepoRefByType(context.RepoRefTag), repo.RefCommits)
+			m.Get("/change/*", context.RepoRefByType(context.RepoRefCommit), repo.RefCommits)
+			m.Get("/*", context.RepoRefByType(context.RepoRefLegacy), repo.RefCommits)
+		}, repo.MustBeNotEmpty, reqRepoCodeReader)
+
 		m.Group("/blame", func() {
 			m.Get("/branch/*", context.RepoRefByType(context.RepoRefBranch), repo.RefBlame)
 			m.Get("/tag/*", context.RepoRefByType(context.RepoRefTag), repo.RefBlame)
@@ -1647,6 +1660,9 @@ func registerRoutes(m *web.Route) {
 			m.Get("/branch/*", context.RepoRefByType(context.RepoRefBranch), repo.Home)
 			m.Get("/tag/*", context.RepoRefByType(context.RepoRefTag), repo.Home)
 			m.Get("/commit/*", context.RepoRefByType(context.RepoRefCommit), repo.Home)
+			// jj-native URL patterns
+			m.Get("/bookmark/*", context.RepoRefByType(context.RepoRefBranch), repo.Home)
+			m.Get("/change/*", context.RepoRefByType(context.RepoRefCommit), repo.Home)
 			// "/*" route is deprecated, and kept for backward compatibility
 			m.Get("/*", context.RepoRefByType(context.RepoRefLegacy), repo.Home)
 		}, repo.SetEditorconfigIfExists)
