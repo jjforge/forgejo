@@ -129,7 +129,7 @@ func (b *JjBackend) GetCommits(ref string, path string, page, perPage int) (*Com
 	params.Set("page", strconv.Itoa(page))
 	params.Set("per_page", strconv.Itoa(perPage))
 
-	reqURL := fmt.Sprintf("%s/commits?%s", b.baseURL(), params.Encode())
+	reqURL := fmt.Sprintf("%s/changes?%s", b.baseURL(), params.Encode())
 
 	req, err := b.newRequest("GET", reqURL)
 	if err != nil {
@@ -141,15 +141,20 @@ func (b *JjBackend) GetCommits(ref string, path string, page, perPage int) (*Com
 		return nil, fmt.Errorf("JjBackend.GetCommits: %w", err)
 	}
 
-	var resp CommitsResponse
-	if err := json.Unmarshal(body, &resp); err != nil {
+	var raw jjChangesRaw
+	if err := json.Unmarshal(body, &raw); err != nil {
 		return nil, fmt.Errorf("JjBackend.GetCommits: unmarshal: %w", err)
 	}
-	return &resp, nil
+	return &CommitsResponse{
+		Commits: raw.Changes,
+		Total:   raw.Total,
+		Page:    raw.Page,
+		PerPage: raw.PerPage,
+	}, nil
 }
 
 func (b *JjBackend) GetCommit(id string) (*CommitDetailResponse, error) {
-	reqURL := fmt.Sprintf("%s/commit/%s", b.baseURL(), url.PathEscape(id))
+	reqURL := fmt.Sprintf("%s/changes/%s", b.baseURL(), url.PathEscape(id))
 
 	req, err := b.newRequest("GET", reqURL)
 	if err != nil {
@@ -166,6 +171,14 @@ func (b *JjBackend) GetCommit(id string) (*CommitDetailResponse, error) {
 		return nil, fmt.Errorf("JjBackend.GetCommit: unmarshal: %w", err)
 	}
 	return &resp, nil
+}
+
+// jjChangesRaw matches the sidecar's /changes response shape.
+type jjChangesRaw struct {
+	Changes []CommitInfo `json:"changes"`
+	Total   int          `json:"total"`
+	Page    int          `json:"page"`
+	PerPage int          `json:"per_page"`
 }
 
 // jjRefsRaw is the raw JSON structure returned by the sidecar's refs endpoint.
