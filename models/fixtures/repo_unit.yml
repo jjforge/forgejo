@@ -833,3 +833,17 @@
   type: 5
   config: "{}"
   created_unix: 1764879302
+
+-
+  id: 121
+  repo_id: 67
+  type: 1
+  config: "{}"
+  created_unix: 1764879302
+
+-
+  id: 122
+  repo_id: 67
+  type: 2
+  config: "{}"
+  created_unix: 1764879302

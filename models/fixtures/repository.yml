@@ -1715,3 +1715,34 @@
   updated_unix: 1764879302
   topics: '[]'
   object_format_name: 'sha256'
+
+-
+  id: 67
+  owner_id: 2
+  owner_name: user2
+  lower_name: jj-test-repo
+  name: jj-test-repo
+  default_branch: main
+  num_watches: 0
+  num_stars: 0
+  num_forks: 0
+  num_milestones: 0
+  num_closed_milestones: 0
+  num_projects: 0
+  num_closed_projects: 0
+  is_private: false
+  is_empty: true
+  is_archived: false
+  is_mirror: false
+  status: 0
+  is_fork: false
+  fork_id: 0
+  is_template: false
+  template_id: 0
+  size: 0
+  is_fsck_enabled: true
+  close_issues_via_commit_in_any_branch: false
+  created_unix: 1764879302
+  updated_unix: 1764879302
+  topics: '[]'
+  vcs_backend_type: 'jj'
