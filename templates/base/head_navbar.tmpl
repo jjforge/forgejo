@@ -39,6 +39,7 @@
 				{{end}}
 			{{end}}
 			<a class="item{{if .PageIsExplore}} active{{end}}" href="{{AppSubUrl}}/explore/repos">{{ctx.Locale.Tr "explore"}}</a>
+			<a class="item{{if .PageIsDownloads}} active{{end}}" href="{{AppSubUrl}}/downloads">Downloads</a>
 		{{else if .IsLandingPageOrganizations}}
 			<a class="item{{if .PageIsExplore}} active{{end}}" href="{{AppSubUrl}}/explore/organizations">{{ctx.Locale.Tr "explore"}}</a>
 		{{else}}
