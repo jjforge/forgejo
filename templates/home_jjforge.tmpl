@@ -1,5 +1,5 @@
-<div class="ui stackable middle very relaxed page grid" style="max-width: min(1280px, 90vw); margin: 0 auto;">
-	<div class="eight wide center column">
+<div class="jjforge-features">
+	<div class="jjforge-feature">
 		<h1 class="hero ui icon header">
 			{{svg "octicon-git-branch" 28}} Version control that works the way you think
 		</h1>
@@ -7,7 +7,7 @@
 			Native Jujutsu hosting with distributed architecture, seamless undo, and conflict-free workflows.
 		</p>
 	</div>
-	<div class="eight wide center column">
+	<div class="jjforge-feature">
 		<h1 class="hero ui icon header">
 			{{svg "octicon-desktop-download" 28}} Environment ready when you are
 		</h1>
@@ -15,9 +15,7 @@
 			Dev environments that scaffold from your repo. Start coding immediately.
 		</p>
 	</div>
-</div>
-<div class="ui stackable middle very relaxed page grid" style="max-width: min(1280px, 90vw); margin: 0 auto;">
-	<div class="eight wide center column">
+	<div class="jjforge-feature">
 		<h1 class="hero ui icon header">
 			{{svg "octicon-project" 28}} Roadmap that matches how teams decide
 		</h1>
@@ -25,7 +23,7 @@
 			Issue tracking built around real workflows, not ceremony.
 		</p>
 	</div>
-	<div class="eight wide center column">
+	<div class="jjforge-feature">
 		<h1 class="hero ui icon header">
 			{{svg "octicon-rocket" 28}} Everything else gets out of the way
 		</h1>
@@ -34,3 +32,23 @@
 		</p>
 	</div>
 </div>
+
+<style>
+	.jjforge-features {
+		max-width: 1280px;
+		margin: 4rem auto;
+		padding: 0 2rem;
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 3rem 4rem;
+	}
+	.jjforge-feature {
+		min-width: 0;
+		text-align: center;
+	}
+	@media (max-width: 768px) {
+		.jjforge-features {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>
